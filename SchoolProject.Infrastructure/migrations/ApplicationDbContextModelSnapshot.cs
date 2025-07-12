@@ -43,7 +43,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasIndex("FileAttachmentId");
 
-                    b.ToTable("Assignments");
+                    b.ToTable("Assignments", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Department", b =>
@@ -68,7 +68,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Department");
+                    b.ToTable("Department", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.DepartmentSubject", b =>
@@ -94,7 +94,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("DepartmentSubjects");
+                    b.ToTable("DepartmentSubjects", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.FileAttachment", b =>
@@ -128,7 +128,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FileAttachments");
+                    b.ToTable("FileAttachments", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Student", b =>
@@ -167,7 +167,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.StudentSubject", b =>
@@ -196,7 +196,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("StudentSubjects");
+                    b.ToTable("StudentSubjects", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.StudentSubmission", b =>
@@ -225,7 +225,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("StudentSubmissions");
+                    b.ToTable("StudentSubmissions", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Subject", b =>
@@ -258,7 +258,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Subjects");
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Teacher", b =>
@@ -287,7 +287,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teachers");
+                    b.ToTable("Teachers", (string)null);
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Assignment", b =>

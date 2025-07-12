@@ -3,10 +3,10 @@
 public class Student
 {
 	public Guid Id { get; set; } = Guid.CreateVersion7();
-	public string FirstName { get; set; } = default!;
-	public string LastName { get; set; } = default!;
-	public string Address { get; set; } = default!;
-	public string Phone { get; set; } = default!;
+	public string FirstName { get; set; } = string.Empty;
+	public string LastName { get; set; } = string.Empty;
+	public string Address { get; set; } = string.Empty;
+	public string Phone { get; set; } = string.Empty;
 	public bool IsActive { get; set; } = true;
 
 	public int? DepartmentId { get; set; }
