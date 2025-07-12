@@ -24,8 +24,4 @@
     <ProjectReference Include="..\SchoolProject.Domain\SchoolProject.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Configurations\" />
-  </ItemGroup>
-
 </Project>
