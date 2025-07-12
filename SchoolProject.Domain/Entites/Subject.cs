@@ -3,10 +3,10 @@
 public class Subject
 {
 	public int Id { get; set; }
-	public string Name { get; set; } = default!;
+	public string Name { get; set; } = string.Empty;
 	public bool IsActive { get; set; } = true;
 	public int CreditHours { get; set; }
-	public string? Description { get; set; } = default!;
+	public string? Description { get; set; } = string.Empty;
 
 	public Guid TeacherId { get; set; }
 	public Teacher Teacher { get; set; } = default!;
