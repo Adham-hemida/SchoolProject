@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SchoolProject.Domain.Entites;
-
-namespace SchoolProject.Infrastructure.EntitesConfigurations;
+﻿namespace SchoolProject.Infrastructure.EntitesConfigurations;
 public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 {
 	public void Configure(EntityTypeBuilder<Department> builder)
