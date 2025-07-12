@@ -7,7 +7,6 @@ public class Student
 	public string LastName { get; set; } = default!;
 	public string Address { get; set; } = default!;
 	public string Phone { get; set; } = default!;
-	public string Email { get; set; } = default!;
 	public bool IsActive { get; set; } = true;
 
 	public int? DepartmentId { get; set; }
