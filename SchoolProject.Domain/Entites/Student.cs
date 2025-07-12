@@ -3,7 +3,8 @@
 public class Student
 {
 	public Guid Id { get; set; } = Guid.CreateVersion7();
-	public string Name { get; set; } = default!;
+	public string FirstName { get; set; } = default!;
+	public string LastName { get; set; } = default!;
 	public string Address { get; set; } = default!;
 	public string Phone { get; set; } = default!;
 	public bool IsActive { get; set; } = true;
