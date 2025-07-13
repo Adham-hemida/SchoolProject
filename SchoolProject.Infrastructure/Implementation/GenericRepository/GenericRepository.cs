@@ -18,9 +18,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 		return _dbSet.AsQueryable();
 	}
 
-	public async Task<T?> GetByIdAsync(object id, CancellationToken cancellationToken = default)
+	public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
 	{
-		return await _dbSet.FindAsync([id], cancellationToken);
+		return await _dbSet.FindAsync(id, cancellationToken);
 	}
 
 	public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
