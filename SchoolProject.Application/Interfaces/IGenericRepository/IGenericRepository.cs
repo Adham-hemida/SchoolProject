@@ -4,7 +4,7 @@ namespace SchoolProject.Application.Interfaces.IGenericRepository;
 public interface IGenericRepository<T> where T : class
 {
 	IQueryable<T> GetAsQueryable();
-	public Task<T?> GetByIdAsync(object id, CancellationToken cancellationToken = default);
+	public Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 	public Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
 	public Task<T> FindAsync(Expression<Func<T, bool>> criteria, Func<IQueryable<T>, IQueryable<T>>? includes = null, CancellationToken cancellationToken = default);
 	public Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, Func<IQueryable<T>, IQueryable<T>>? includes = null, CancellationToken cancellationToken = default);

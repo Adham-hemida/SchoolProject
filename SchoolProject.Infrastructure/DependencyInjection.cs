@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolProject.Application.Interfaces.IGenericRepository;
 using SchoolProject.Infrastructure.Data;
-using SchoolProject.Infrastructure.Implementation;
+using SchoolProject.Infrastructure.Implementation.GenericRepository;
 
 namespace SchoolProject.Infrastructure;
 public static class DependencyInjection

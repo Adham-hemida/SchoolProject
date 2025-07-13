@@ -2,7 +2,7 @@
 using SchoolProject.Infrastructure.Data;
 using System.Linq.Expressions;
 
-namespace SchoolProject.Infrastructure.Implementation;
+namespace SchoolProject.Infrastructure.Implementation.GenericRepository;
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
 	private readonly ApplicationDbContext _context;
@@ -18,11 +18,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 		return _dbSet.AsQueryable();
 	}
 
-	public async Task<T?> GetByIdAsync(object id, CancellationToken cancellationToken = default)
+	public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
 	{
-		return await _dbSet.FindAsync([id], cancellationToken);
+		return await _dbSet.FindAsync(id, cancellationToken);
 	}
-	
+
 	public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
 	{
 		return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
@@ -88,7 +88,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 	{
 		_dbSet.Update(entity);
 		return entity;
-	}	
+	}
 
 	public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default)
 	{
@@ -98,8 +98,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
 	public void Delete(T entity)
 	{
-	
+
 		_dbSet.Remove(entity);
-		
+
 	}
 }
