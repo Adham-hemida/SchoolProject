@@ -1,9 +1,14 @@
 using Scalar.AspNetCore;
 using SchoolProject.Infrastructure;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructureDependencies(builder.Configuration);
+
+builder.Host.UseSerilog((context, configuration)
+	=> configuration.ReadFrom.Configuration(context.Configuration));
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -16,7 +21,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
-
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
