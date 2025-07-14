@@ -6,21 +6,21 @@ public class StudentRequestValidator : AbstractValidator<StudentRequest>
 	public StudentRequestValidator()
 	{
 		RuleFor(x=>x.FirstName)
-			.NotEmpty().WithMessage("First name is required.")
+			.NotEmpty()
 			.Length(3,50)
-			.WithMessage("Max is 50 characters.");
+			.WithMessage("min is 3 and Max 50 characters");
 		
 		
 		RuleFor(x=>x.LastName)
-			.NotEmpty().WithMessage("First name is required.")
+			.NotEmpty()
 			.Length(3,50)
-			.WithMessage("Max 50 characters.");
+			.WithMessage("min is 3 and Max 50 characters.");
 
 		RuleFor(x=>x.Phone)
 			.NotEmpty()
 			.WithMessage("Phone number is required.")
-			.MaximumLength(15)
-			.WithMessage("Phone number must not exceed 15 characters.");
+			.Length(11).WithMessage("Phone number must be exactly 11 digits.")
+	        .Matches(@"^\d{11}$").WithMessage("Phone number must contain only digits.");
 
 		RuleFor(x=>x.Address)
 			.NotEmpty()
