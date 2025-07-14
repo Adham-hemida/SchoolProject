@@ -1,4 +1,5 @@
-﻿using SchoolProject.Application.Interfaces.IGenericRepository;
+﻿using Mapster;
+using SchoolProject.Application.Interfaces.IGenericRepository;
 using SchoolProject.Infrastructure.Data;
 using System.Linq.Expressions;
 
@@ -51,18 +52,18 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
 
 
-	//public async Task<IEnumerable<TDestination>> FindAllProjectedAsync<TDestination>(Expression<Func<T, bool>>? criteria = null, CancellationToken cancellationToken = default)
-	//{
-	//	IQueryable<T> query = _dbSet;
+	public async Task<IEnumerable<TDestination>> FindAllProjectedAsync<TDestination>(Expression<Func<T, bool>>? criteria = null, CancellationToken cancellationToken = default)
+	{
+		IQueryable<T> query = _dbSet;
 
-	//	if (criteria != null)
-	//		query = query.Where(criteria);
+		if (criteria != null)
+			query = query.Where(criteria);
 
-	//	return await query
-	//		.AsNoTracking()
-	//		.ProjectToType<TDestination>()
-	//		.ToListAsync(cancellationToken);
-	//}
+		return await query
+			.AsNoTracking()
+			.ProjectToType<TDestination>()
+			.ToListAsync(cancellationToken);
+	}
 
 	public async Task<IEnumerable<TDestination>> FindAllProjectedWithSelect<TDestination>(Expression<Func<T, TDestination>> selector, Expression<Func<T, bool>>? criteria = null, CancellationToken cancellationToken = default)
 	{
