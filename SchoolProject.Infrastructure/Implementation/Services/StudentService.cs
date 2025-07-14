@@ -19,7 +19,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 	public async Task<Result<StudentResponse>> GetAsync(int DepartmentId, Guid Id, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Student>().AnyAsync(x => x.DepartmentId == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure<StudentResponse>(DepartmentErrors.DepartmentNotFound);
@@ -45,7 +45,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 public async Task<Result<IEnumerable<StudentBasicResponse>>> GetAllAsync(int DepartmentId, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Student>().AnyAsync(x => x.DepartmentId == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure<IEnumerable<StudentBasicResponse>>(DepartmentErrors.DepartmentNotFound);
@@ -60,7 +60,7 @@ public async Task<Result<IEnumerable<StudentBasicResponse>>> GetAllAsync(int Dep
 
 	public async Task<Result<StudentBasicResponse>> AddAsync(int DepartmentId, StudentRequest request, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Student>().AnyAsync(x => x.DepartmentId == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure<StudentBasicResponse>(DepartmentErrors.DepartmentNotFound);
@@ -77,7 +77,7 @@ public async Task<Result<IEnumerable<StudentBasicResponse>>> GetAllAsync(int Dep
 
 	public async Task<Result> UpdateAsync(int DepartmentId, Guid id, StudentRequest request, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Student>().AnyAsync(x => x.DepartmentId == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure(DepartmentErrors.DepartmentNotFound);
