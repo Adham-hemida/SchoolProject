@@ -7,4 +7,7 @@ public static class StudentErrors
 	public static readonly Error StudentNotFound =
 	new("Student.not_found", "No Student was found with the given Id", StatusCodes.Status404NotFound);
 
+	public static readonly Error DuplicatedStudent =
+		new("Student.Duplicated", " Another Student is already exist", StatusCodes.Status409Conflict);
+}
 }
