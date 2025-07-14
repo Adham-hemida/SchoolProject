@@ -29,5 +29,18 @@ public class StudentsController(IStudentService studentService) : ControllerBase
 		var result = await _studentService.AddAsync(DepartmentId,request, cancellationToken);
 		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { DepartmentId, id = result.Value.Id,result.Value }, result.Value) : result.ToProblem();
 	}
+	[HttpPut("{id}")]
+	public async Task<IActionResult> Update([FromRoute] int DepartmentId, [FromRoute] Guid id, [FromBody] StudentRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _studentService.UpdateAsync(DepartmentId,id,request, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
+	
+	[HttpPut("{id}/toggleStatus")]
+	public async Task<IActionResult> ToggleStatus([FromRoute] int DepartmentId, [FromRoute] Guid id, CancellationToken cancellationToken)
+	{
+		var result = await _studentService.ToggleStatusAsync(DepartmentId,id, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 
 }

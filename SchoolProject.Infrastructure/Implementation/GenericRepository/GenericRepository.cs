@@ -85,10 +85,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 		return await _dbSet.AnyAsync(predicate, cancellationToken);
 	}
 
-	public T UpdateAsync(T entity)
+	public void Update(T entity)
 	{
 		_dbSet.Update(entity);
-		return entity;
+		
 	}
 
 	public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default)
