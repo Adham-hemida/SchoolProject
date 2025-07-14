@@ -35,5 +35,12 @@ public class StudentsController(IStudentService studentService) : ControllerBase
 		var result = await _studentService.UpdateAsync(DepartmentId,id,request, cancellationToken);
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
+	
+	[HttpPut("{id}/toggleStatus")]
+	public async Task<IActionResult> ToggleStatus([FromRoute] int DepartmentId, [FromRoute] Guid id, CancellationToken cancellationToken)
+	{
+		var result = await _studentService.ToggleStatusAsync(DepartmentId,id, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 
 }
