@@ -82,16 +82,22 @@ public async Task<Result<IEnumerable<StudentBasicResponse>>> GetAllAsync(int Dep
 		if (!departmentIsExist)
 			return Result.Failure(DepartmentErrors.DepartmentNotFound);
 
-		var student= await _unitOfWork.Repository<Student>().AnyAsync(x=>x.FirstName==request.FirstName
+		var currentStudent = await _unitOfWork.Repository<Student>().FindAsync(x=>x.Id==id && x.DepartmentId==DepartmentId,null,cancellationToken);
+
+		if (currentStudent is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		var studentIsExist = await _unitOfWork.Repository<Student>().AnyAsync(x=>x.FirstName==request.FirstName
 	    && x.LastName==request.LastName && x.Phone==request.Phone && x.Address == request.Address && x.Id != id,cancellationToken);
 
-		if(student)
+		if(studentIsExist)
 			return Result.Failure(StudentErrors.DuplicatedStudent);
 
-		var newStudent = request.Adapt<Student>();
-		
+		currentStudent = request.Adapt(currentStudent);
 
-		_unitOfWork.Repository<Student>().Update(newStudent);
+
+
+		_unitOfWork.Repository<Student>().Update(currentStudent);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
 

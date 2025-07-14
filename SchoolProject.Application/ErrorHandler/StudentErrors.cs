@@ -10,4 +10,4 @@ public static class StudentErrors
 	public static readonly Error DuplicatedStudent =
 		new("Student.Duplicated", " Another Student is already exist", StatusCodes.Status409Conflict);
 }
-}
+
