@@ -2,8 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolProject.Application.Interfaces.IGenericRepository;
+using SchoolProject.Application.Interfaces.IServices;
+using SchoolProject.Application.Interfaces.IUnitOfWork;
 using SchoolProject.Infrastructure.Data;
 using SchoolProject.Infrastructure.Implementation.GenericRepository;
+using SchoolProject.Infrastructure.Implementation.Services;
+using SchoolProject.Infrastructure.Implementation.UnitOfWork;
 
 namespace SchoolProject.Infrastructure;
 public static class DependencyInjection
@@ -17,6 +21,9 @@ public static class DependencyInjection
 			options.UseSqlServer(connectionString));
 
 		services.AddScoped( typeof(IGenericRepository<>), typeof(GenericRepository<>));
+		services.AddScoped<IUnitOfWork, UnitOfWork>();
+		services.AddScoped<IStudentService,StudentService>();
+
 
 		return services;
 	}
