@@ -1,5 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using Mapster;
+using MapsterMapper;
+using Microsoft.Extensions.DependencyInjection;
 using SchoolProject.Application.ExceptionHandler;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
+using System.Reflection;
 
 namespace SchoolProject.Application;
 public static class DependencyInjection
@@ -8,6 +13,16 @@ public static class DependencyInjection
 	{
 		services.AddExceptionHandler<GlobalExceptionHandler>();
 		services.AddProblemDetails();
+
+		var mappingConfig = TypeAdapterConfig.GlobalSettings;
+		mappingConfig.Scan(Assembly.GetExecutingAssembly());
+		services.AddSingleton<IMapper>(new Mapper(mappingConfig));
+
+		services
+			.AddFluentValidationAutoValidation()
+			.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+
 		return services;
 	}
 }

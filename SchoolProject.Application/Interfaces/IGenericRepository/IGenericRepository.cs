@@ -9,9 +9,9 @@ public interface IGenericRepository<T> where T : class
 	public Task<T> FindAsync(Expression<Func<T, bool>> criteria, Func<IQueryable<T>, IQueryable<T>>? includes = null, CancellationToken cancellationToken = default);
 	public Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, Func<IQueryable<T>, IQueryable<T>>? includes = null, CancellationToken cancellationToken = default);
 
-	//public Task<IEnumerable<TDestination>> FindAllProjectedAsync<TDestination>(
-	//	Expression<Func<T, bool>>? criteria = null,
-	//CancellationToken cancellationToken = default);
+	public Task<IEnumerable<TDestination>> FindAllProjectedAsync<TDestination>(
+		Expression<Func<T, bool>>? criteria = null,
+	CancellationToken cancellationToken = default);
 
 	public Task<IEnumerable<TDestination>> FindAllProjectedWithSelect<TDestination>(
 	Expression<Func<T, TDestination>> selector,
