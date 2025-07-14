@@ -1,10 +1,12 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Interfaces.IUnitOfWork;
+using SchoolProject.Domain.Entites;
 using SchoolProject.Infrastructure.Data;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -103,9 +105,23 @@ public async Task<Result<IEnumerable<StudentBasicResponse>>> GetAllAsync(int Dep
 
 	}
 
+	public async Task<Result> ToggleStatusAsync(int DepartmentId, Guid id, CancellationToken cancellationToken = default)
+	{
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
 
+		if (!departmentIsExist)
+			return Result.Failure(DepartmentErrors.DepartmentNotFound);
 
+		var currentStudent = await _unitOfWork.Repository<Student>().FindAsync(x => x.Id == id && x.DepartmentId == DepartmentId, null, cancellationToken);
 
+		if (currentStudent is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		currentStudent.IsActive = !currentStudent.IsActive;
+
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+	}
 
 	
 }
