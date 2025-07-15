@@ -40,4 +40,11 @@ public class SubjectsController(ISubjectService subjectService) : ControllerBase
 		var result = await _subjectService.UpdateAsync(id, request, cancellationToken);
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
+
+	[HttpPut("{id}/toggleStatus")]
+	public async Task<IActionResult> ToggleStatus([FromRoute] int id, CancellationToken cancellationToken)
+	{
+		var result = await _subjectService.ToggleStatusAsync(id, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 }

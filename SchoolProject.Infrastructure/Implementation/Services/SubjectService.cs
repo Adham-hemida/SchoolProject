@@ -85,4 +85,16 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		return Result.Success();
 	}
 
+	public async Task<Result> ToggleStatusAsync(int id, CancellationToken cancellationToken = default)
+	{
+		var subject = await _unitOfWork.Repository<Subject>().GetByIdAsync(id, cancellationToken);
+
+		if (subject is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		subject.IsActive = !subject.IsActive;
+
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+	}
 }

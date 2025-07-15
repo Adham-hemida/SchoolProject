@@ -14,5 +14,6 @@ public interface ISubjectService
 	Task<Result<IEnumerable<SubjectResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
 	Task<Result<SubjectResponse>> AddAsync(SubjectRequest request, CancellationToken cancellationToken = default);
 	Task<Result> UpdateAsync(int id, SubjectRequest request, CancellationToken cancellationToken = default);
+	Task<Result> ToggleStatusAsync(int id, CancellationToken cancellationToken = default);
 
 }
