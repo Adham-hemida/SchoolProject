@@ -14,6 +14,14 @@ public class DepartmentService(IUnitOfWork unitOfWork, ApplicationDbContext cont
 	private readonly IUnitOfWork _unitOfWork = unitOfWork;
 	private readonly ApplicationDbContext _context = context;
 
+	public async Task<Result<IEnumerable<DepartmentResponse>>> GetAllAsync( CancellationToken cancellationToken = default)
+	{
+		var result = await _unitOfWork.Repository<Department>()
+			.FindAllProjectedAsync<DepartmentResponse>(cancellationToken: cancellationToken);
+
+		return Result.Success(result);
+	}
+
 	public async Task<Result<DepartmentResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default!)
 	{
 		var department = await _unitOfWork.Repository<Department>().FindAsync(x => x.Id == id, null, cancellationToken);
