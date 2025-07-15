@@ -60,4 +60,29 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success(subject.Adapt<SubjectResponse>());
 	}
+
+	public async Task<Result> UpdateAsync(int id, SubjectRequest request, CancellationToken cancellationToken = default)
+	{
+		var subject=await _unitOfWork.Repository<Subject>().GetByIdAsync(id, cancellationToken);
+
+		if (subject is null)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		var teacher = await _unitOfWork.Repository<Teacher>()
+			.GetAsQueryable().FirstAsync(x => x.Id == request.TeacherId, cancellationToken);
+
+		if (teacher is null)
+			return Result.Failure<SubjectResponse>(TeacherErrors.TeacherNotFound);
+
+		var subjectIsExist= await _unitOfWork.Repository<Subject>().AnyAsync(x=>x.Name==request.Name && x.CreditHours==request.CreditHours && x.Id!=id, cancellationToken);
+
+		if (subjectIsExist)
+			return Result.Failure(SubjectErrors.DuplicatedSubject);
+
+		subject = request.Adapt(subject);
+		 _unitOfWork.Repository<Subject>().Update(subject);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+	}
+
 }

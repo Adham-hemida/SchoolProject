@@ -33,4 +33,11 @@ public class SubjectsController(ISubjectService subjectService) : ControllerBase
 		var result = await _subjectService.AddAsync(request, cancellationToken);
 		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value) : result.ToProblem();
 	}
+
+	[HttpPut("{id}")]
+	public async Task<IActionResult> Update([FromRoute] int id, [FromBody] SubjectRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _subjectService.UpdateAsync(id, request, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 }
