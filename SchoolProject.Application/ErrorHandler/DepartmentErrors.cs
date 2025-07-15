@@ -6,4 +6,7 @@ public static class DepartmentErrors
 {
 	public static readonly Error DepartmentNotFound =
 		new("Department.not_found", "No Department was found with the given Id", StatusCodes.Status404NotFound);
+
+	public static readonly Error DuplicatedDepartment =
+		new("Department.Duplicated", " Another Department is already exist", StatusCodes.Status409Conflict);
 }
