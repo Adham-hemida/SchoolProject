@@ -3,6 +3,8 @@ using SchoolProject.Application.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Infrastructure.Implementation.Services;
+using SchoolProject.Application.Contracts.Student;
+using SchoolProject.Application.Contracts.Department;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
@@ -23,5 +25,12 @@ public class DepartmentsController(IDepartmentService departmentService) : Contr
 	{
 		var result = await _departmentService.GetAllAsync( cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+	[HttpPost("")]
+	public async Task<IActionResult> Create( [FromBody] DepartmentRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _departmentService.AddAsync( request, cancellationToken);
+		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new {  id = result.Value.Id }, result.Value) : result.ToProblem();
 	}
 }

@@ -12,5 +12,7 @@ public interface IDepartmentService
 {
 	Task<Result<DepartmentResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default!);
 	Task<Result<IEnumerable<DepartmentResponse>>> GetAllAsync( CancellationToken cancellationToken = default);
+	Task<Result<DepartmentResponse>> AddAsync( DepartmentRequest request, CancellationToken cancellationToken = default);
+
 
 }

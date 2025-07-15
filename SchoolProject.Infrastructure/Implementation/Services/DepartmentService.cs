@@ -30,5 +30,24 @@ public class DepartmentService(IUnitOfWork unitOfWork, ApplicationDbContext cont
 			return Result.Failure<DepartmentResponse>(DepartmentErrors.DepartmentNotFound);
 
 		return Result.Success(department.Adapt<DepartmentResponse>());
+	}	
+	
+	
+	public async Task<Result<DepartmentResponse>> AddAsync(DepartmentRequest request, CancellationToken cancellationToken = default)
+	{
+		var departmentIsExists =await  _unitOfWork.Repository<Department>()
+			.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower().Trim(), cancellationToken: cancellationToken);
+
+		if (departmentIsExists)
+			return Result.Failure<DepartmentResponse>(DepartmentErrors.DuplicatedDepartment);
+
+		var department=request.Adapt<Department>();
+
+		await _unitOfWork.Repository<Department>().CreateAsync(department);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+
+		return Result.Success(department.Adapt<DepartmentResponse>());
 	}
+
+
 }
