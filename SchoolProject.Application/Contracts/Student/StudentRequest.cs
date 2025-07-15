@@ -3,5 +3,6 @@ public record StudentRequest(
 	string FirstName,
 	string LastName,
 	string Address,
-	string Phone
+	string Phone,
+	List<int> SubjectIds
 	);

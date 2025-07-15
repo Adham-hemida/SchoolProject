@@ -26,5 +26,17 @@ public class StudentRequestValidator : AbstractValidator<StudentRequest>
 			.NotEmpty()
 			.MaximumLength(100)
 			.WithMessage("Address must not exceed 100 characters.");
+
+		RuleFor(x => x.SubjectIds)
+			.NotNull();
+
+		RuleFor(x => x.SubjectIds)
+			.Must(x => x.Count > 1)
+			.WithMessage("should be at least 2 subjects")
+			.When(x => x.SubjectIds != null);
+
+		RuleForEach(x => x.SubjectIds)
+			.GreaterThan(0)
+			.WithMessage("number should be equal or  greater than 1 ");
 	}
 }
