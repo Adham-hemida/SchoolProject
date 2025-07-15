@@ -69,4 +69,17 @@ public class DepartmentService(IUnitOfWork unitOfWork, ApplicationDbContext cont
 	}
 
 
+	public async Task<Result> ToggleStatusAsync(int  id, CancellationToken cancellationToken = default)
+	{
+		var departmet = await _unitOfWork.Repository<Department>().GetByIdAsync(id, cancellationToken);
+
+		if (departmet is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		departmet.IsActive = !departmet.IsActive;
+
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+	}
+
 }

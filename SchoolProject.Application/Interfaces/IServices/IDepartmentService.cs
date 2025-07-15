@@ -14,6 +14,6 @@ public interface IDepartmentService
 	Task<Result<IEnumerable<DepartmentResponse>>> GetAllAsync( CancellationToken cancellationToken = default);
 	Task<Result<DepartmentResponse>> AddAsync( DepartmentRequest request, CancellationToken cancellationToken = default);
 	Task<Result> UpdateAsync( int id, DepartmentRequest request, CancellationToken cancellationToken = default);
-
+	Task<Result> ToggleStatusAsync(int  id, CancellationToken cancellationToken = default);
 
 }
