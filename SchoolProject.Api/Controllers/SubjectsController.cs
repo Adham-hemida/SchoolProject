@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Contracts.Department;
+using SchoolProject.Application.Contracts.Subject;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Infrastructure.Implementation.Services;
 
@@ -23,5 +25,12 @@ public class SubjectsController(ISubjectService subjectService) : ControllerBase
 	{
 		var result = await _subjectService.GetAllAsync(cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+	[HttpPost("")]
+	public async Task<IActionResult> Create([FromBody] SubjectRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _subjectService.AddAsync(request, cancellationToken);
+		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value) : result.ToProblem();
 	}
 }

@@ -11,6 +11,6 @@ public static class SubjectErrors
 	public static readonly Error SubjectNotFound =
 	new("Subject.not_found", "No Subject was found with the given Id", StatusCodes.Status404NotFound);
 
-	public static readonly Error SubjectDepartment =
+	public static readonly Error DuplicatedSubject =
 		new("Subject.Duplicated", " Another Subject is already exist", StatusCodes.Status409Conflict);
 }

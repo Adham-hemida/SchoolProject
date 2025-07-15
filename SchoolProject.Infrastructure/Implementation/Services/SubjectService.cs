@@ -40,4 +40,24 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 		return Result.Success(subjects.AsEnumerable());
 	}
+
+	public async Task<Result<SubjectResponse>> AddAsync(SubjectRequest request, CancellationToken cancellationToken = default)
+	{
+		var  subjectIsExist=await _unitOfWork.Repository<Subject>()
+			.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower().Trim(), cancellationToken: cancellationToken);
+
+		if(subjectIsExist)
+			return Result.Failure<SubjectResponse>(SubjectErrors.DuplicatedSubject);
+
+		var teacher=await _unitOfWork.Repository<Teacher>()
+			.GetAsQueryable().FirstAsync(x => x.Id == request.TeacherId , cancellationToken);
+
+		if (teacher is null)
+			return Result.Failure<SubjectResponse>(TeacherErrors.TeacherNotFound);
+
+		var subject = request.Adapt<Subject>();
+		await _unitOfWork.Repository<Subject>().CreateAsync(subject);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success(subject.Adapt<SubjectResponse>());
+	}
 }
