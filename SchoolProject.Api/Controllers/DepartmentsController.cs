@@ -33,4 +33,11 @@ public class DepartmentsController(IDepartmentService departmentService) : Contr
 		var result = await _departmentService.AddAsync( request, cancellationToken);
 		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new {  id = result.Value.Id }, result.Value) : result.ToProblem();
 	}
+
+	[HttpPut("{id}")]
+	public async Task<IActionResult> Update([FromRoute] int  id, [FromBody] DepartmentRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _departmentService.UpdateAsync( id, request, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 }
