@@ -171,7 +171,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 
 
-	public async Task<Result> AddStudentToDepartment(int DepartmentId, Guid id, CancellationToken cancellationToken = default)
+	public async Task<Result> AssignStudentToDepartmentAsync(int DepartmentId, Guid id, CancellationToken cancellationToken = default)
 	{
 		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
 

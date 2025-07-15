@@ -8,5 +8,6 @@ public interface IStudentService
 	Task<Result<IEnumerable<StudentBasicResponse>>>GetAllAsync(int DepartmentId, CancellationToken cancellationToken = default);
 	Task<Result<StudentBasicResponse>>AddAsync(int DepartmentId, StudentRequest request, CancellationToken cancellationToken = default);
 	Task<Result>UpdateAsync(int DepartmentId, Guid id, StudentRequest request, CancellationToken cancellationToken = default);
+	Task<Result> AssignStudentToDepartmentAsync(int DepartmentId, Guid id, CancellationToken cancellationToken = default);
 	Task<Result>ToggleStatusAsync(int DepartmentId, Guid id, CancellationToken cancellationToken = default);
 }
