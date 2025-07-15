@@ -171,6 +171,34 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 
 
+	public async Task<Result> AddStudentToDepartment(int DepartmentId, Guid id, CancellationToken cancellationToken = default)
+	{
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
+
+		if (!departmentIsExist)
+			return Result.Failure(DepartmentErrors.DepartmentNotFound);
+
+		var student=await _unitOfWork.Repository<Student>().FindAsync(x=>x.Id==id,null,cancellationToken);
+		if(student is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+
+		var studentIsExistInDepartment = await _unitOfWork.Repository<Student>().AnyAsync(x => x.Id == id && x.DepartmentId == DepartmentId, cancellationToken);
+
+		if(studentIsExistInDepartment)
+			return Result.Failure(StudentErrors.DuplicatedStudent);
+
+		student.DepartmentId=DepartmentId;
+
+		 _unitOfWork.Repository<Student>().Update(student);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+
+		
+
+	}
+
+
 	public async Task<Result> ToggleStatusAsync(int DepartmentId, Guid id, CancellationToken cancellationToken = default)
 	{
 		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
