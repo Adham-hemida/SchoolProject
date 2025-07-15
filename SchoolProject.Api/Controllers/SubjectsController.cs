@@ -17,4 +17,11 @@ public class SubjectsController(ISubjectService subjectService) : ControllerBase
 		var result = await _subjectService.GetByIdAsync(id, cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
+
+	[HttpGet("")]
+	public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
+	{
+		var result = await _subjectService.GetAllAsync(cancellationToken);
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
 }
