@@ -1,0 +1,26 @@
+﻿using Mapster;
+using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Contracts.Department;
+using SchoolProject.Application.Contracts.Student;
+using SchoolProject.Application.ErrorHandler;
+using SchoolProject.Application.Interfaces.IServices;
+using SchoolProject.Application.Interfaces.IUnitOfWork;
+using SchoolProject.Domain.Entites;
+using SchoolProject.Infrastructure.Data;
+
+namespace SchoolProject.Infrastructure.Implementation.Services;
+public class DepartmentService(IUnitOfWork unitOfWork, ApplicationDbContext context) : IDepartmentService
+{
+	private readonly IUnitOfWork _unitOfWork = unitOfWork;
+	private readonly ApplicationDbContext _context = context;
+
+	public async Task<Result<DepartmentResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default!)
+	{
+		var department = await _unitOfWork.Repository<Department>().FindAsync(x => x.Id == id, null, cancellationToken);
+
+		if (department is null)
+			return Result.Failure<DepartmentResponse>(DepartmentErrors.DepartmentNotFound);
+
+		return Result.Success(department.Adapt<DepartmentResponse>());
+	}
+}
