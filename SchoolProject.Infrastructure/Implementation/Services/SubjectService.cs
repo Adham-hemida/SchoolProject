@@ -80,6 +80,8 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		if (subjectIsExist)
 			return Result.Failure(SubjectErrors.DuplicatedSubject);
 
+
+
 		subject = request.Adapt(subject);
 		 _unitOfWork.Repository<Subject>().Update(subject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
@@ -114,10 +116,16 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		if (student is null)
 			return Result.Failure(StudentErrors.StudentNotFound);
 
-		var subject = await _unitOfWork.Repository<Subject>().GetByIdAsync(id, cancellationToken);
+		var subjectExists = await _unitOfWork.Repository<Subject>()
+		.AnyAsync(s => s.Id == id, cancellationToken);
+		if (!subjectExists)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
 
-		if (subject is null)
-			return Result.Failure(StudentErrors.StudentNotFound);
+		var isSubjectInDepartment = await _unitOfWork.Repository<DepartmentSubject>()
+			.AnyAsync(x => x.DepartmentId == departmentId && x.SubjectId == id, cancellationToken);
+		
+		if (!isSubjectInDepartment)
+			return Result.Failure(DepartmentSubjectErrors.DepartmentSubjectNotFound);
 
 		var studentSubject = student.StudentsSubjects.FirstOrDefault(ss => ss.SubjectId == id);
 		if (studentSubject == null)
@@ -133,5 +141,38 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 
 
+	}
+
+	public async Task<Result> AddSubjectToDepartmentAsync(int id, int departmentId,bool isMandatory,CancellationToken cancellationToken = default)
+	{
+
+
+		var subjectExists = await _unitOfWork.Repository<Subject>()
+		.AnyAsync(s => s.Id == id, cancellationToken);
+		if (!subjectExists)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		var departmentExists = await _unitOfWork.Repository<Department>()
+		.AnyAsync(x => x.Id == departmentId, cancellationToken);
+		if (!departmentExists)
+			return Result.Failure(DepartmentErrors.DepartmentNotFound);
+
+		var isSubjectInDepartment = await _unitOfWork.Repository<DepartmentSubject>()
+			.AnyAsync(x => x.DepartmentId == departmentId && x.SubjectId == id, cancellationToken);
+
+		if (isSubjectInDepartment)
+			return Result.Failure(DepartmentSubjectErrors.DepartmentSubjectDuplicated);
+
+		var newDepartmentSubject=new DepartmentSubject
+		{
+			SubjectId = id,
+			DepartmentId = departmentId,
+			IsMandatory = isMandatory
+		};
+
+		
+		_unitOfWork.Repository<DepartmentSubject>().Update(newDepartmentSubject);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
 	}
 }

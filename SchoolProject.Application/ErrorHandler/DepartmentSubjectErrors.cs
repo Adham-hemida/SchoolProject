@@ -11,4 +11,7 @@ public static class DepartmentSubjectErrors
 {
 	public static readonly Error DepartmentSubjectNotFound =
 		new("DepartmentSubject.not_found", "No DepartmentSubject was found with the given Id", StatusCodes.Status404NotFound);
+			
+			public static readonly Error DepartmentSubjectDuplicated =
+		new("DepartmentSubject.Duplicated", "Another DepartmentSubject is already exist", StatusCodes.Status409Conflict);
 }
