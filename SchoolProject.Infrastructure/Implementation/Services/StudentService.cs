@@ -81,7 +81,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		student.DepartmentId = DepartmentId;
 
 		var departmentSubjectIds = await _unitOfWork.Repository<DepartmentSubject>().GetAsQueryable()
-			.Where(x => x.DepartmentId == DepartmentId)
+			.Where(x => x.DepartmentId == DepartmentId&& x.Subject.IsActive)
 			.Select(x => x.SubjectId)
 			.ToListAsync(cancellationToken);
 
@@ -132,7 +132,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		
 
 		var departmentSubjectIds = await _unitOfWork.Repository<DepartmentSubject>().GetAsQueryable()
-			.Where(x => x.DepartmentId == DepartmentId)
+			.Where(x => x.DepartmentId == DepartmentId && x.Subject.IsActive)
 			.Select(x => x.SubjectId)
 			.ToListAsync(cancellationToken);
 
