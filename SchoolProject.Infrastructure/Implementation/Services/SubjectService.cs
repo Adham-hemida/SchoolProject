@@ -4,6 +4,7 @@ using SchoolProject.Application.Contracts.Subject;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Interfaces.IUnitOfWork;
+using SchoolProject.Domain.Entites;
 using SchoolProject.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -79,6 +80,8 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		if (subjectIsExist)
 			return Result.Failure(SubjectErrors.DuplicatedSubject);
 
+
+
 		subject = request.Adapt(subject);
 		 _unitOfWork.Repository<Subject>().Update(subject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
@@ -94,6 +97,81 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 		subject.IsActive = !subject.IsActive;
 
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+	}
+
+	public async Task<Result> ToggleStatusForStudentSubjectAsync(int id, Guid studentId, int departmentId, CancellationToken cancellationToken = default)
+	{
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
+
+		if (!departmentIsExist)
+			return Result.Failure(DepartmentErrors.DepartmentNotFound);
+
+		var student = await _unitOfWork.Repository<Student>()
+		.GetAsQueryable()
+		.Include(s => s.StudentsSubjects)
+		.FirstOrDefaultAsync(s => s.Id == studentId && s.DepartmentId == departmentId, cancellationToken);
+		
+		if (student is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		var subjectExists = await _unitOfWork.Repository<Subject>()
+		.AnyAsync(s => s.Id == id, cancellationToken);
+		if (!subjectExists)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		var isSubjectInDepartment = await _unitOfWork.Repository<DepartmentSubject>()
+			.AnyAsync(x => x.DepartmentId == departmentId && x.SubjectId == id, cancellationToken);
+		
+		if (!isSubjectInDepartment)
+			return Result.Failure(DepartmentSubjectErrors.DepartmentSubjectNotFound);
+
+		var studentSubject = student.StudentsSubjects.FirstOrDefault(ss => ss.SubjectId == id);
+		if (studentSubject == null)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		studentSubject.IsActive=!studentSubject.IsActive;
+		_unitOfWork.Repository<StudentSubject>().Update(studentSubject);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+
+
+
+
+
+
+	}
+
+	public async Task<Result> AddSubjectToDepartmentAsync(int id, int departmentId,bool isMandatory,CancellationToken cancellationToken = default)
+	{
+
+
+		var subjectExists = await _unitOfWork.Repository<Subject>()
+		.AnyAsync(s => s.Id == id, cancellationToken);
+		if (!subjectExists)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		var departmentExists = await _unitOfWork.Repository<Department>()
+		.AnyAsync(x => x.Id == departmentId, cancellationToken);
+		if (!departmentExists)
+			return Result.Failure(DepartmentErrors.DepartmentNotFound);
+
+		var isSubjectInDepartment = await _unitOfWork.Repository<DepartmentSubject>()
+			.AnyAsync(x => x.DepartmentId == departmentId && x.SubjectId == id, cancellationToken);
+
+		if (isSubjectInDepartment)
+			return Result.Failure(DepartmentSubjectErrors.DepartmentSubjectDuplicated);
+
+		var newDepartmentSubject=new DepartmentSubject
+		{
+			SubjectId = id,
+			DepartmentId = departmentId,
+			IsMandatory = isMandatory
+		};
+
+		
+		_unitOfWork.Repository<DepartmentSubject>().Update(newDepartmentSubject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
 	}
