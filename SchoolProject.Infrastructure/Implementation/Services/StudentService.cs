@@ -36,7 +36,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 				 x.LastName,
 				 x.Address,
 				 x.Phone,
-				 x.StudentsSubjects.Where(ss => ss.Subject.IsActive).Select(y => new StudentSubjectResponse(y.Subject.Name )).Distinct().ToList()
+				 x.StudentsSubjects.Where(ss =>ss.IsActive && ss.Subject.IsActive ).Select(y => new StudentSubjectResponse(y.Subject.Name )).Distinct().ToList()
 			)).SingleOrDefaultAsync(cancellationToken);
 
 		if (Student is null)
@@ -86,22 +86,26 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 			.ToListAsync(cancellationToken);
 
 		var validSubjectIds = request.SubjectIds
-			.Where(x => departmentSubjectIds.Contains(x))
+			.Where(id => departmentSubjectIds.Contains(id))
+			.Distinct()
 			.ToList();
 
 		if (validSubjectIds.Count == 0)
 			return Result.Failure<StudentBasicResponse>(SubjectErrors.NoValidSubjects);
 
-		var subjects = await _unitOfWork.Repository<Subject>().GetAsQueryable()
-			.Where(x => validSubjectIds.Contains(x.Id) && x.IsActive)
-			.ToListAsync(cancellationToken);
-		student.StudentsSubjects = subjects.Select(x => new StudentSubject
+		foreach (var subjectId in validSubjectIds)
 		{
-			SubjectId = x.Id,
-			IsPassed = false,
+			var alreadyExists = student.StudentsSubjects.Any(ss => ss.SubjectId == subjectId);
 
-			
-		}).ToList();
+			if (!alreadyExists)
+			{
+				student.StudentsSubjects.Add(new StudentSubject
+				{
+					SubjectId = subjectId,
+					IsPassed = false
+				});
+			}
+		}
 
 
 
@@ -112,7 +116,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 	}
 
-	public async Task<Result> UpdateAsync(int DepartmentId, Guid id, StudentRequest request, CancellationToken cancellationToken = default)
+	public async Task<Result> UpdateAsync(int DepartmentId, Guid id, UpdateStudentRequest request, CancellationToken cancellationToken = default)
 	{
 		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
 
@@ -129,40 +133,8 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 		if (studentIsExist)
 			return Result.Failure(StudentErrors.DuplicatedStudent);
-		
 
-		var departmentSubjectIds = await _unitOfWork.Repository<DepartmentSubject>().GetAsQueryable()
-			.Where(x => x.DepartmentId == DepartmentId && x.Subject.IsActive)
-			.Select(x => x.SubjectId)
-			.ToListAsync(cancellationToken);
-
-		var validSubjectIds = request.SubjectIds
-				.Where(x => departmentSubjectIds.Contains(x))
-				.Distinct()
-				.ToList();
-		// حذف المواد التي لم تعد موجودة في الطلب
-		var subjectsToRemove = currentStudent.StudentsSubjects
-		.Where(ss => !validSubjectIds.Contains(ss.SubjectId))
-		.ToList();
-
-		foreach (var subject in subjectsToRemove)
-		{
-			 _unitOfWork.Repository<StudentSubject>().Delete(subject);
-		}
-		validSubjectIds.ForEach(subjectId => {
-			currentStudent.StudentsSubjects.Add(new StudentSubject
-			{
-				SubjectId = subjectId,
-				IsPassed = false
-			});
-		});
-	
-		
-		// تحديث بيانات الطالب الحالي
-		currentStudent.FirstName = request.FirstName;
-		currentStudent.LastName = request.LastName;
-		currentStudent.Address = request.Address;
-		currentStudent.Phone = request.Phone;
+		currentStudent = request.Adapt(currentStudent);
 
 		_unitOfWork.Repository<Student>().Update(currentStudent);
 		await _unitOfWork.CompleteAsync(cancellationToken);

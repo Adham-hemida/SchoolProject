@@ -30,7 +30,7 @@ public class StudentsController(IStudentService studentService) : ControllerBase
 		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { DepartmentId, id = result.Value.Id,result.Value }, result.Value) : result.ToProblem();
 	}
 	[HttpPut("{id}")]
-	public async Task<IActionResult> Update([FromRoute] int DepartmentId, [FromRoute] Guid id, [FromBody] StudentRequest request, CancellationToken cancellationToken)
+	public async Task<IActionResult> Update([FromRoute] int DepartmentId, [FromRoute] Guid id, [FromBody] UpdateStudentRequest request, CancellationToken cancellationToken)
 	{
 		var result = await _studentService.UpdateAsync(DepartmentId,id,request, cancellationToken);
 		return result.IsSuccess ? NoContent() : result.ToProblem();
