@@ -143,6 +143,53 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 	}
 
+	public async Task<Result> AddSubjectToStudentAsync(int subjectId, Guid studentId, CancellationToken cancellationToken = default)
+	{
+
+
+		var subjectExists = await _unitOfWork.Repository<Subject>()
+		.AnyAsync(s => s.Id == subjectId, cancellationToken);
+		if (!subjectExists)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		var student = await _unitOfWork.Repository<Student>()
+			.GetAsQueryable()
+			.Include(s => s.StudentsSubjects)
+			.FirstOrDefaultAsync(s => s.Id == studentId, cancellationToken);
+
+		if (student is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		var existingStudentSubject = student.StudentsSubjects
+			.FirstOrDefault(ss => ss.SubjectId == subjectId);
+
+		if (existingStudentSubject is not null)
+		{
+			if (existingStudentSubject.IsActive)
+				return Result.Failure(StudentSubjectErrors.StudentSubjectDuplicated);
+
+			// المادة موجودة بس كانت غير مفعلة => هنفعلها
+			existingStudentSubject.IsActive = true;
+			_unitOfWork.Repository<StudentSubject>().Update(existingStudentSubject);
+		}
+		else
+		{
+			// مادة جديدة → هنضيفها
+			var newStudentSubject = new StudentSubject
+			{
+				SubjectId = subjectId,
+				StudentId = studentId,
+				IsActive = true
+			};
+
+			await _unitOfWork.Repository<StudentSubject>().CreateAsync(newStudentSubject);
+		}
+
+
+		
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+	}
 	public async Task<Result> AddSubjectToDepartmentAsync(int subjectId, int departmentId, bool isMandatory, CancellationToken cancellationToken = default)
 	{
 

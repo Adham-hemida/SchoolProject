@@ -18,5 +18,5 @@ public interface ISubjectService
 	Task<Result> ToggleStatusForStudentSubjectAsync(int id,Guid studentId,int departmentId, CancellationToken cancellationToken = default);
 	Task<Result> ToggleStatusForDepartmentSubjectAsync(int id,int departmentId, CancellationToken cancellationToken = default);
 	Task<Result> AddSubjectToDepartmentAsync(int id, int departmentId, bool isMandatory, CancellationToken cancellationToken = default);
-
+	Task<Result> AddSubjectToStudentAsync(int subjectId, Guid studentId, CancellationToken cancellationToken = default);
 }
