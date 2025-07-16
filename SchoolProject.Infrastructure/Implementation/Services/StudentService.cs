@@ -26,7 +26,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		if (!departmentIsExist)
 			return Result.Failure<StudentResponse>(DepartmentErrors.DepartmentNotFound);
 
-		var Student = await _unitOfWork.Repository<Student>().GetAsQueryable()
+		var student = await _unitOfWork.Repository<Student>().GetAsQueryable()
 			.Where(x => x.Id == Id && x.DepartmentId == DepartmentId)
 			.Include(x => x.StudentsSubjects)
 			.ThenInclude(x => x.Subject)
@@ -39,10 +39,10 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 				 x.StudentsSubjects.Where(ss =>ss.IsActive && ss.Subject.IsActive ).Select(y => new StudentSubjectResponse(y.Subject.Name )).Distinct().ToList()
 			)).SingleOrDefaultAsync(cancellationToken);
 
-		if (Student is null)
+		if (student is null)
 			return Result.Failure<StudentResponse>(StudentErrors.StudentNotFound);
 
-		return Result.Success(Student);
+		return Result.Success(student);
 	}
 
 	public async Task<Result<IEnumerable<StudentBasicResponse>>> GetAllAsync(int DepartmentId, CancellationToken cancellationToken = default)
