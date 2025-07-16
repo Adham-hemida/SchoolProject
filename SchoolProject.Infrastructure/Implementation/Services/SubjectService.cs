@@ -44,14 +44,14 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 	public async Task<Result<SubjectResponse>> AddAsync(SubjectRequest request, CancellationToken cancellationToken = default)
 	{
-		var  subjectIsExist=await _unitOfWork.Repository<Subject>()
+		var subjectIsExist = await _unitOfWork.Repository<Subject>()
 			.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower().Trim(), cancellationToken: cancellationToken);
 
-		if(subjectIsExist)
+		if (subjectIsExist)
 			return Result.Failure<SubjectResponse>(SubjectErrors.DuplicatedSubject);
 
-		var teacher=await _unitOfWork.Repository<Teacher>()
-			.GetAsQueryable().FirstAsync(x => x.Id == request.TeacherId , cancellationToken);
+		var teacher = await _unitOfWork.Repository<Teacher>()
+			.GetAsQueryable().FirstAsync(x => x.Id == request.TeacherId, cancellationToken);
 
 		if (teacher is null)
 			return Result.Failure<SubjectResponse>(TeacherErrors.TeacherNotFound);
@@ -64,7 +64,7 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 	public async Task<Result> UpdateAsync(int id, SubjectRequest request, CancellationToken cancellationToken = default)
 	{
-		var subject=await _unitOfWork.Repository<Subject>().GetByIdAsync(id, cancellationToken);
+		var subject = await _unitOfWork.Repository<Subject>().GetByIdAsync(id, cancellationToken);
 
 		if (subject is null)
 			return Result.Failure(SubjectErrors.SubjectNotFound);
@@ -75,7 +75,7 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		if (teacher is null)
 			return Result.Failure<SubjectResponse>(TeacherErrors.TeacherNotFound);
 
-		var subjectIsExist= await _unitOfWork.Repository<Subject>().AnyAsync(x=>x.Name==request.Name && x.CreditHours==request.CreditHours && x.Id!=id, cancellationToken);
+		var subjectIsExist = await _unitOfWork.Repository<Subject>().AnyAsync(x => x.Name == request.Name && x.CreditHours == request.CreditHours && x.Id != id, cancellationToken);
 
 		if (subjectIsExist)
 			return Result.Failure(SubjectErrors.DuplicatedSubject);
@@ -83,7 +83,7 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 
 		subject = request.Adapt(subject);
-		 _unitOfWork.Repository<Subject>().Update(subject);
+		_unitOfWork.Repository<Subject>().Update(subject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
 	}
@@ -101,7 +101,7 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		return Result.Success();
 	}
 
-	public async Task<Result> ToggleStatusForStudentSubjectAsync(int id, Guid studentId, int departmentId, CancellationToken cancellationToken = default)
+	public async Task<Result> ToggleStatusForStudentSubjectAsync(int subjectId, Guid studentId, int departmentId, CancellationToken cancellationToken = default)
 	{
 		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
 
@@ -112,26 +112,26 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		.GetAsQueryable()
 		.Include(s => s.StudentsSubjects)
 		.FirstOrDefaultAsync(s => s.Id == studentId && s.DepartmentId == departmentId, cancellationToken);
-		
+
 		if (student is null)
 			return Result.Failure(StudentErrors.StudentNotFound);
 
 		var subjectExists = await _unitOfWork.Repository<Subject>()
-		.AnyAsync(s => s.Id == id, cancellationToken);
+		.AnyAsync(s => s.Id == subjectId, cancellationToken);
 		if (!subjectExists)
 			return Result.Failure(SubjectErrors.SubjectNotFound);
 
 		var isSubjectInDepartment = await _unitOfWork.Repository<DepartmentSubject>()
-			.AnyAsync(x => x.DepartmentId == departmentId && x.SubjectId == id, cancellationToken);
-		
+			.AnyAsync(x => x.DepartmentId == departmentId && x.SubjectId == subjectId, cancellationToken);
+
 		if (!isSubjectInDepartment)
 			return Result.Failure(DepartmentSubjectErrors.DepartmentSubjectNotFound);
 
-		var studentSubject = student.StudentsSubjects.FirstOrDefault(ss => ss.SubjectId == id);
+		var studentSubject = student.StudentsSubjects.FirstOrDefault(ss => ss.SubjectId == subjectId);
 		if (studentSubject == null)
 			return Result.Failure(SubjectErrors.SubjectNotFound);
 
-		studentSubject.IsActive=!studentSubject.IsActive;
+		studentSubject.IsActive = !studentSubject.IsActive;
 		_unitOfWork.Repository<StudentSubject>().Update(studentSubject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
@@ -143,12 +143,12 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 	}
 
-	public async Task<Result> AddSubjectToDepartmentAsync(int id, int departmentId,bool isMandatory,CancellationToken cancellationToken = default)
+	public async Task<Result> AddSubjectToDepartmentAsync(int subjectId, int departmentId, bool isMandatory, CancellationToken cancellationToken = default)
 	{
 
 
 		var subjectExists = await _unitOfWork.Repository<Subject>()
-		.AnyAsync(s => s.Id == id, cancellationToken);
+		.AnyAsync(s => s.Id == subjectId, cancellationToken);
 		if (!subjectExists)
 			return Result.Failure(SubjectErrors.SubjectNotFound);
 
@@ -158,21 +158,52 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 			return Result.Failure(DepartmentErrors.DepartmentNotFound);
 
 		var isSubjectInDepartment = await _unitOfWork.Repository<DepartmentSubject>()
-			.AnyAsync(x => x.DepartmentId == departmentId && x.SubjectId == id, cancellationToken);
+			.AnyAsync(x => x.DepartmentId == departmentId && x.SubjectId == subjectId, cancellationToken);
 
 		if (isSubjectInDepartment)
 			return Result.Failure(DepartmentSubjectErrors.DepartmentSubjectDuplicated);
 
-		var newDepartmentSubject=new DepartmentSubject
+		var newDepartmentSubject = new DepartmentSubject
 		{
-			SubjectId = id,
+			SubjectId = subjectId,
 			DepartmentId = departmentId,
 			IsMandatory = isMandatory
 		};
 
-		
+
 		_unitOfWork.Repository<DepartmentSubject>().Update(newDepartmentSubject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
+	}
+
+	public async Task<Result> ToggleStatusForDepartmentSubjectAsync(int subjectId, int departmentId, CancellationToken cancellationToken = default)
+	{
+
+
+		var department = await _unitOfWork.Repository<Department>()
+        .GetAsQueryable()
+        .Include(s => s.DepartmentSubjects)
+        .FirstOrDefaultAsync(s => s.Id == departmentId, cancellationToken);
+
+		if (department is null)
+			return Result.Failure(DepartmentErrors.DepartmentNotFound);
+
+		var subjectExists = await _unitOfWork.Repository<Subject>()
+		.AnyAsync(s => s.Id == subjectId, cancellationToken);
+
+		if (!subjectExists)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+
+		var departmentSubject = department.DepartmentSubjects.FirstOrDefault(ds => ds.SubjectId == subjectId);
+
+		if (departmentSubject == null)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		departmentSubject.IsActive=!departmentSubject.IsActive;
+		_unitOfWork.Repository<DepartmentSubject>().Update(departmentSubject);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+
 	}
 }
