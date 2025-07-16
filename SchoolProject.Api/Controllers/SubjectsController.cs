@@ -41,12 +41,7 @@ public class SubjectsController(ISubjectService subjectService) : ControllerBase
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
 
-	[HttpPut("department/{departmentID}/student/{studentId}/subject/{id}/toggleStatus")]
-	public async Task<IActionResult> ToggleStatusForStudentSubject([FromRoute] int id, [FromRoute] int departmentID, [FromRoute] Guid studentId, CancellationToken cancellationToken)
-	{
-		var result = await _subjectService.ToggleStatusForStudentSubjectAsync(id, studentId, departmentID, cancellationToken);
-		return result.IsSuccess ? NoContent() : result.ToProblem();
-	}
+
 	[HttpPut("{id}/toggleStatus")]
 	public async Task<IActionResult> ToggleStatus([FromRoute] int id, CancellationToken cancellationToken)
 	{
@@ -54,12 +49,34 @@ public class SubjectsController(ISubjectService subjectService) : ControllerBase
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
 	
-	[HttpPost("department/{departmentId}/subject/{id}/add-subject-to-student")]
+	[HttpPost("department/{departmentId}/subject/{id}/add-subject-to-department")]
 	public async Task<IActionResult> AddSubjectToDepartment([FromRoute] int id, [FromRoute] int departmentId, [FromBody] bool isMandatory, CancellationToken cancellationToken)
 	{
 		var result = await _subjectService.AddSubjectToDepartmentAsync(id,departmentId, isMandatory, cancellationToken);
 		return result.IsSuccess ? Ok(id) : result.ToProblem();
 	}
+	
+	[HttpPut("department/{departmentId}/subject/{id}/toggleStatus-departmentSubject")]
+	public async Task<IActionResult> ToggleStatusForDepartmentSubjec([FromRoute] int id, [FromRoute] int departmentId, CancellationToken cancellationToken)
+	{
+		var result = await _subjectService.ToggleStatusForDepartmentSubjectAsync(id,departmentId, cancellationToken);
+		return result.IsSuccess ? NoContent(): result.ToProblem();
+	}
 
+
+	[HttpPost("student/{studentId}/subject/{id}/add-subject-to-student")]
+	public async Task<IActionResult> AddSubjectToDepartment([FromRoute] int id, [FromRoute] Guid studentId, CancellationToken cancellationToken)
+	{
+		var result = await _subjectService.AddSubjectToStudentAsync(id, studentId, cancellationToken);
+		return result.IsSuccess ? Ok(id) : result.ToProblem();
+	}
+	
+
+	[HttpPut("department/{departmentID}/student/{studentId}/subject/{id}/toggleStatus-studentSubject")]
+	public async Task<IActionResult> ToggleStatusForStudentSubject([FromRoute] int id, [FromRoute] int departmentID, [FromRoute] Guid studentId, CancellationToken cancellationToken)
+	{
+		var result = await _subjectService.ToggleStatusForStudentSubjectAsync(id, studentId, departmentID, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 
 }
