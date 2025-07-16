@@ -41,6 +41,12 @@ public class SubjectsController(ISubjectService subjectService) : ControllerBase
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
 
+	[HttpPut("department/{departmentID}/student/{studentId}/subject{id}/toggleStatus")]
+	public async Task<IActionResult> ToggleStatusForStudentSubject([FromRoute] int id, [FromRoute] int departmentID, [FromRoute] Guid studentId, CancellationToken cancellationToken)
+	{
+		var result = await _subjectService.ToggleStatusForStudentSubjectAsync(id, studentId, departmentID, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 	[HttpPut("{id}/toggleStatus")]
 	public async Task<IActionResult> ToggleStatus([FromRoute] int id, CancellationToken cancellationToken)
 	{

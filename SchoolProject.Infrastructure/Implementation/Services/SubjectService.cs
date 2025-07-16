@@ -4,6 +4,7 @@ using SchoolProject.Application.Contracts.Subject;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Interfaces.IUnitOfWork;
+using SchoolProject.Domain.Entites;
 using SchoolProject.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -96,5 +97,41 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
+	}
+
+	public async Task<Result> ToggleStatusForStudentSubjectAsync(int id, Guid studentId, int departmentId, CancellationToken cancellationToken = default)
+	{
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
+
+		if (!departmentIsExist)
+			return Result.Failure(DepartmentErrors.DepartmentNotFound);
+
+		var student = await _unitOfWork.Repository<Student>()
+		.GetAsQueryable()
+		.Include(s => s.StudentsSubjects)
+		.FirstOrDefaultAsync(s => s.Id == studentId && s.DepartmentId == departmentId, cancellationToken);
+		
+		if (student is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		var subject = await _unitOfWork.Repository<Subject>().GetByIdAsync(id, cancellationToken);
+
+		if (subject is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		var studentSubject = student.StudentsSubjects.FirstOrDefault(ss => ss.SubjectId == id);
+		if (studentSubject == null)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		studentSubject.IsActive=!studentSubject.IsActive;
+		_unitOfWork.Repository<StudentSubject>().Update(studentSubject);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+
+
+
+
+
+
 	}
 }
