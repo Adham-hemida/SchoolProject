@@ -11,4 +11,7 @@ public interface ITeacherService
 {
 	Task<Result<TeacherResponse>> GetByIdAsync(Guid teacherId, CancellationToken cancellationToken = default!);
 	Task<Result<IEnumerable<TeacherResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
+	Task<Result<TeacherBaiscResponse>> AddAsync(TeacherRequest request, CancellationToken cancellationToken = default);
+	Task<Result<TeacherBaiscResponse>> UpdateAsync(Guid teacherId, TeacherRequest request, CancellationToken cancellationToken = default);
+	Task<Result> ToggleStatusAsync(Guid id, CancellationToken cancellationToken = default);
 }
