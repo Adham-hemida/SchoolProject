@@ -17,7 +17,7 @@ public class TeacherService(IUnitOfWork unitOfWork) : ITeacherService
 	public async Task<Result<TeacherResponse>> GetByIdAsync(Guid teacherId, CancellationToken cancellationToken = default)
 	{
 		var teacher = await _unitOfWork.Repository<Teacher>().GetAsQueryable()
-			.Where(x => x.Id == teacherId)
+			.Where(x => x.Id == teacherId && x.IsActive)
 			.Select(x => new TeacherResponse(
 				x.Id,
 				x.FirstName,
@@ -32,5 +32,23 @@ public class TeacherService(IUnitOfWork unitOfWork) : ITeacherService
 			return Result.Failure<TeacherResponse>(TeacherErrors.TeacherNotFound);
 
 		return Result.Success(teacher);
+	}	
+	
+	public async Task<Result<IEnumerable<TeacherResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
+	{
+		var teachers = await _unitOfWork.Repository<Teacher>().GetAsQueryable()
+			.Select(x => new TeacherResponse(
+				x.Id,
+				x.FirstName,
+				x.LastName,
+				x.Email,
+				x.Phone,
+				x.IsActive,
+				x.Subjects.Select(s => s.Name).Distinct()
+			)).ToListAsync(cancellationToken);
+
+		
+
+		return Result.Success<IEnumerable<TeacherResponse>>(teachers);
 	}
 }
