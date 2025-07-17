@@ -3,6 +3,8 @@ using SchoolProject.Application.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Infrastructure.Implementation.Services;
+using SchoolProject.Application.Contracts.Department;
+using SchoolProject.Application.Contracts.Teacher;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
@@ -22,5 +24,20 @@ public class TeachersController(ITeacherService teacherService) : ControllerBase
 	{
 		var result = await _teacherService.GetAllAsync(cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+
+	[HttpPost("")]
+	public async Task<IActionResult> Create([FromBody] TeacherRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _teacherService.AddAsync(request, cancellationToken);
+		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value) : result.ToProblem();
+	}
+
+	[HttpPut("{id}")]
+	public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] TeacherRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _teacherService.UpdateAsync(id, request, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
 }
