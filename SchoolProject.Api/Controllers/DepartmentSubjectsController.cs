@@ -16,4 +16,11 @@ public class DepartmentSubjectsController(IDepartmentSubjectService departmentSu
 		var result = await _departmentSubjectService.GetAllSubjectsOfDepartmentAsync(id, cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
+	
+	[HttpGet("")]
+	public async Task<IActionResult> GetAllSubjectsOfAllDepartments( CancellationToken cancellationToken = default)
+	{
+		var result = await _departmentSubjectService.GetAllSubjectsOfAllDepartmentsAsync( cancellationToken);
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
 }

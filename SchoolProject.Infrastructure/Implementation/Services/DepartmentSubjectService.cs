@@ -5,6 +5,7 @@ using SchoolProject.Application.Contracts.Subject;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Interfaces.IUnitOfWork;
+using SchoolProject.Domain.Entites;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace SchoolProject.Infrastructure.Implementation.Services;
 public class DepartmentSubjectService(IUnitOfWork unitOfWork) : IDepartmentSubjectService
 {
 	private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
 
 	public async Task<Result<DepartmentSubjectResponse>> GetAllSubjectsOfDepartmentAsync(int departmentId, CancellationToken cancellationToken = default)
 	{
@@ -39,6 +41,21 @@ public class DepartmentSubjectService(IUnitOfWork unitOfWork) : IDepartmentSubje
 
 		return Result.Success(departmentResponse);
 
+	}
+
+	public async Task<Result<IEnumerable<DepartmentSubjectResponse>>> GetAllSubjectsOfAllDepartmentsAsync(CancellationToken cancellationToken = default)
+	{
+		var departmentResponse = await _unitOfWork.Repository<Department>().GetAsQueryable()
+			.Include(x => x.DepartmentSubjects)
+			.ThenInclude(x => x.Subject)
+			.Select(x => new DepartmentSubjectResponse
+			(
+				x.Id,
+				x.Name,
+				x.DepartmentSubjects.Select(y => new SubjectDetailsResponse(y.Subject.Id, y.Subject.Name, y.Subject.IsActive)).ToList()
+			)).ToListAsync(cancellationToken);
+
+		return Result.Success<IEnumerable<DepartmentSubjectResponse>>(departmentResponse);
 	}
 
 }
