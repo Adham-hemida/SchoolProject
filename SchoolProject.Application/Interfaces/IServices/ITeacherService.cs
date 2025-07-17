@@ -10,4 +10,5 @@ namespace SchoolProject.Application.Interfaces.IServices;
 public interface ITeacherService
 {
 	Task<Result<TeacherResponse>> GetByIdAsync(Guid teacherId, CancellationToken cancellationToken = default!);
+	Task<Result<IEnumerable<TeacherResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
 }
