@@ -10,4 +10,5 @@ namespace SchoolProject.Application.Interfaces.IServices;
 public interface IDepartmentSubjectService
 {
 	Task<Result<DepartmentSubjectResponse>>GetAllSubjectsOfDepartmentAsync(int departmentId, CancellationToken cancellationToken = default!);
+	Task<Result<IEnumerable<DepartmentSubjectResponse>>>GetAllSubjectsOfAllDepartmentsAsync( CancellationToken cancellationToken = default!);
 }
