@@ -47,4 +47,11 @@ public class TeachersController(ITeacherService teacherService) : ControllerBase
 		var result = await _teacherService.ToggleStatusAsync(id, cancellationToken);
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
+
+	[HttpPost("teachers/{teacherId}/assign-subject/{id}")]
+	public async Task<IActionResult> AddSubjectToTeacher([FromRoute] int id, [FromRoute] Guid teacherId, CancellationToken cancellationToken)
+	{
+		var result = await _teacherService.AddSubjectToTeacherAsync(id, teacherId, cancellationToken);
+		return result.IsSuccess ? Ok(id) : result.ToProblem();
+	}
 }
