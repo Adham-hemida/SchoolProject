@@ -4,6 +4,7 @@ using SchoolProject.Application.Contracts.Teacher;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Interfaces.IUnitOfWork;
+using SchoolProject.Domain.Entites;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,5 +92,20 @@ public class TeacherService(IUnitOfWork unitOfWork) : ITeacherService
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success(teacher.Adapt<TeacherBaiscResponse>());
 
+	}
+
+	public async Task<Result> ToggleStatusAsync(Guid id, CancellationToken cancellationToken = default)
+	{
+		var teacher = await _unitOfWork.Repository<Teacher>()
+				.FindAsync(x => x.Id == id, null, cancellationToken);
+
+		if (teacher is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
+		teacher.IsActive = !teacher.IsActive;
+
+		_unitOfWork.Repository<Teacher>().Update(teacher);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
 	}
 }
