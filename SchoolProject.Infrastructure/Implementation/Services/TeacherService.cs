@@ -108,4 +108,33 @@ public class TeacherService(IUnitOfWork unitOfWork) : ITeacherService
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
 	}
+
+	public async Task<Result> AddSubjectToTeacherAsync(int subjectId, Guid teacherId, CancellationToken cancellationToken = default)
+	{
+		var subject = await _unitOfWork.Repository<Subject>()
+			.GetByIdAsync(subjectId, cancellationToken);
+
+		if (subject is null)
+			return Result.Failure(SubjectErrors.SubjectNotFound);
+
+		var teacher = await _unitOfWork.Repository<Teacher>()
+			.FindAsync(x => x.Id == teacherId, null, cancellationToken);
+
+		if (teacher is null)
+			return Result.Failure(TeacherErrors.TeacherNotFound);
+
+		// لو المادة بالفعل مرتبطة بنفس المعلم
+		if (subject.TeacherId == teacherId && subject.IsActive)
+			return Result.Success();
+
+		// تحديث المعلم المرتبط بالمادة
+		// Assign the teacher
+		subject.TeacherId = teacherId;
+		subject.IsActive = true;
+
+		_unitOfWork.Repository<Subject>().Update(subject);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+
+		return Result.Success();
+	}
 }
