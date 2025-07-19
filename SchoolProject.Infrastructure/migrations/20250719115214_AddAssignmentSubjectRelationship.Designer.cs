@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchoolProject.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SchoolProject.Infrastructure.Data;
 namespace SchoolProject.Infrastructure.migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250719115214_AddAssignmentSubjectRelationship")]
+    partial class AddAssignmentSubjectRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +29,9 @@ namespace SchoolProject.Infrastructure.migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FileAttachmentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
@@ -43,6 +49,8 @@ namespace SchoolProject.Infrastructure.migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FileAttachmentId");
 
                     b.HasIndex("SubjectId1");
 
@@ -110,9 +118,6 @@ namespace SchoolProject.Infrastructure.migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AssignmentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("ContentType")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -137,8 +142,6 @@ namespace SchoolProject.Infrastructure.migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AssignmentId");
 
                     b.ToTable("FileAttachments");
                 });
@@ -310,11 +313,17 @@ namespace SchoolProject.Infrastructure.migrations
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Assignment", b =>
                 {
+                    b.HasOne("SchoolProject.Domain.Entites.FileAttachment", "FileAttachment")
+                        .WithMany("Assignments")
+                        .HasForeignKey("FileAttachmentId");
+
                     b.HasOne("SchoolProject.Domain.Entites.Subject", "Subject")
                         .WithMany("Assignments")
                         .HasForeignKey("SubjectId1")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("FileAttachment");
 
                     b.Navigation("Subject");
                 });
@@ -324,29 +333,18 @@ namespace SchoolProject.Infrastructure.migrations
                     b.HasOne("SchoolProject.Domain.Entites.Department", "Department")
                         .WithMany("DepartmentSubjects")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SchoolProject.Domain.Entites.Subject", "Subject")
                         .WithMany("DepartmentSubjects")
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Department");
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("SchoolProject.Domain.Entites.FileAttachment", b =>
-                {
-                    b.HasOne("SchoolProject.Domain.Entites.Assignment", "Assignment")
-                        .WithMany("FileAttachments")
-                        .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Assignment");
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Student", b =>
@@ -363,13 +361,13 @@ namespace SchoolProject.Infrastructure.migrations
                     b.HasOne("SchoolProject.Domain.Entites.Student", "Student")
                         .WithMany("StudentsSubjects")
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SchoolProject.Domain.Entites.Subject", "Subject")
                         .WithMany("StudentsSubjects")
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Student");
@@ -382,19 +380,19 @@ namespace SchoolProject.Infrastructure.migrations
                     b.HasOne("SchoolProject.Domain.Entites.Assignment", "Assignment")
                         .WithMany("Submissions")
                         .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SchoolProject.Domain.Entites.FileAttachment", "FileAttachment")
                         .WithMany("StudentSubmissions")
                         .HasForeignKey("FileAttachmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SchoolProject.Domain.Entites.Student", "Student")
                         .WithMany("Submissions")
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Assignment");
@@ -409,7 +407,7 @@ namespace SchoolProject.Infrastructure.migrations
                     b.HasOne("SchoolProject.Domain.Entites.Teacher", "Teacher")
                         .WithMany("Subjects")
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Teacher");
@@ -417,8 +415,6 @@ namespace SchoolProject.Infrastructure.migrations
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Assignment", b =>
                 {
-                    b.Navigation("FileAttachments");
-
                     b.Navigation("Submissions");
                 });
 
@@ -431,6 +427,8 @@ namespace SchoolProject.Infrastructure.migrations
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.FileAttachment", b =>
                 {
+                    b.Navigation("Assignments");
+
                     b.Navigation("StudentSubmissions");
                 });
 

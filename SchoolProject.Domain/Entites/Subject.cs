@@ -13,6 +13,7 @@ public class Subject
 
 	public ICollection<StudentSubject> StudentsSubjects { get; set; } = [];
 	public ICollection<DepartmentSubject> DepartmentSubjects { get; set; } = [];
+	public ICollection<Assignment> Assignments { get; set; } = [];
 
 
 }
