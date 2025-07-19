@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Contracts.Assignment;
 using SchoolProject.Application.Contracts.FileAttachment;
 using SchoolProject.Application.Interfaces.IServices;
+using SchoolProject.Domain.Entites;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
@@ -16,5 +17,12 @@ public class FileAttachmentsController(IFileAttachmentService fileAttachmentServ
 	{
 		var result = await _fileAttachmentService.UploadAssignmentFileAsync(assignmentId,request, cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem(); ;
+	}
+	
+	[HttpPost("assignment/{assignmentId}/student/{studentId}/upload")]
+	public async Task<IActionResult> UploadStudentSubmission([FromRoute] Guid assignmentId, [FromRoute] Guid studentId, [FromForm] UploadFileRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _fileAttachmentService.UploadStudentSubmissionAsync(assignmentId,studentId,request, cancellationToken);
+		return result.IsSuccess ? Created() : result.ToProblem(); ;
 	}
 }

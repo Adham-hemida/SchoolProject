@@ -11,4 +11,5 @@ namespace SchoolProject.Application.Interfaces.IServices;
 public interface IFileAttachmentService
 {
 	Task<Result<Guid>> UploadAssignmentFileAsync(Guid assignmentId, UploadFileRequest file, CancellationToken cancellationToken);
+	Task<Result> UploadStudentSubmissionAsync(Guid assignmentId, Guid studentId, UploadFileRequest file, CancellationToken cancellationToken);
 }
