@@ -47,8 +47,6 @@ public class StudentSubjectService(IUnitOfWork unitOfWork, ApplicationDbContext 
 
 		var studentSubjectResponse = new StudentSubjectResponse
 		(
-
-			$"{student.FirstName} {student.LastName}",
 			studentSubject.Subject.Name,
 			studentSubject.Grade,
 			studentSubject.IsPassed
@@ -70,7 +68,6 @@ public class StudentSubjectService(IUnitOfWork unitOfWork, ApplicationDbContext 
 			.ThenInclude(x => x.Subject)
 			.Select(x => x.StudentsSubjects.Select(y => new StudentSubjectResponse
 				(
-					$"{x.FirstName} {x.LastName}",
 					y.Subject.Name,
 					y.Grade,
 					y.IsPassed
