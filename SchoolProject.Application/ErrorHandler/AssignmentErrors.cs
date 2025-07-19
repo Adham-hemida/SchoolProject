@@ -12,4 +12,7 @@ public static class AssignmentErrors
 	public static readonly Error DuplicatedAssignment =
 	new("Assignment.Duplicated", " Another Assignment is already exist", StatusCodes.Status409Conflict);
 
+	public static readonly Error AssignmentNotFound =
+	new("Assignment.not_found", "No Assignment was found with the given Id", StatusCodes.Status404NotFound);
+
 }
