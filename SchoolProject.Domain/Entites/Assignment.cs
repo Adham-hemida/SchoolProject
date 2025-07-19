@@ -5,8 +5,10 @@ public class Assignment
 	public string Title { get; set; } = string.Empty;
 	public bool IsActive { get; set; } = true;
 
-	public Guid? FileAttachmentId { get; set; } //  الملف المرفوع مع الواجب
-	public FileAttachment? FileAttachment { get; set; } = default!;
+	public int SubjectId { get; set; }
+	public Subject Subject { get; set; } = default!;
 
 	public ICollection<StudentSubmission> Submissions { get; set; } = [];
+	public ICollection<FileAttachment> FileAttachments { get; set; } = [];
+
 }

@@ -8,6 +8,8 @@ public class FileAttachment
 	public string FileExtension { get; set; } = string.Empty;
 	public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
+	public Guid AssignmentId { get; set; }
+	public Assignment Assignment { get; set; } = default!;
+
 	public ICollection<StudentSubmission> StudentSubmissions { get; set; } = [];
-	public ICollection<Assignment> Assignments { get; set; } = [];
 }

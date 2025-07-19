@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchoolProject.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SchoolProject.Infrastructure.Data;
 namespace SchoolProject.Infrastructure.migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250719122514_AddAssignmentFileAttachmentsRelation")]
+    partial class AddAssignmentFileAttachmentsRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,7 +34,10 @@ namespace SchoolProject.Infrastructure.migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<int>("SubjectId")
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SubjectId1")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -41,7 +47,7 @@ namespace SchoolProject.Infrastructure.migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubjectId");
+                    b.HasIndex("SubjectId1");
 
                     b.ToTable("Assignments");
                 });
@@ -309,7 +315,7 @@ namespace SchoolProject.Infrastructure.migrations
                 {
                     b.HasOne("SchoolProject.Domain.Entites.Subject", "Subject")
                         .WithMany("Assignments")
-                        .HasForeignKey("SubjectId")
+                        .HasForeignKey("SubjectId1")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

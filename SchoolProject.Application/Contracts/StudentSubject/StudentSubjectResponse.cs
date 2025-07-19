@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace SchoolProject.Application.Contracts.StudentSubject;
 public record StudentSubjectResponse(
-	string StudentName,
 	string SubjectName,
 	double? Grade,
 	bool IsPassed
