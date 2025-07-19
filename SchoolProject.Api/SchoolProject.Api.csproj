@@ -21,4 +21,9 @@
     <ProjectReference Include="..\SchoolProject.Infrastructure\SchoolProject.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\AssignmentFiles\" />
+    <Folder Include="wwwroot\StudentSubmissions\" />
+  </ItemGroup>
+
 </Project>
