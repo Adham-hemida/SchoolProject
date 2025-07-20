@@ -87,7 +87,8 @@ public class FileAttachmentService(IWebHostEnvironment webHostEnvironment,IUnitO
 		{
 			AssignmentId = assignmentId,
 			StudentId = studentId,
-			FileAttachmentId = uploadedFile.Id
+			FileAttachmentId = uploadedFile.Id,
+			SubmittedAt = DateTime.UtcNow
 		};
 		await _unitOfWork.Repository<StudentSubmission>().CreateAsync(studentSubmission, cancellationToken);
 		await _unitOfWork.CompleteAsync(cancellationToken);

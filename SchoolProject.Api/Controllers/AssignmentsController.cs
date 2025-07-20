@@ -25,5 +25,12 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 	{
 		var result = await _assignmentService.GetByIdAsync(assignmentId, cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}	
+	
+	[HttpGet("{assignmentId}/submissions")]
+	public async Task<IActionResult> GetAssignmentSubmissions([FromRoute] Guid assignmentId, CancellationToken cancellationToken = default)
+	{
+		var result = await _assignmentService.GetAssignmentSubmissionsAsync(assignmentId, cancellationToken);
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 }
