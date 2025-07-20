@@ -102,4 +102,27 @@ public class AssignmentService(IUnitOfWork unitOfWork, IHttpContextAccessor http
 		return Result.Success(files);
 	}
 
+
+	public async Task<Result>UpdateAsync(Guid assignmentId, int subjectId, AssignmentUpdateRequest request, CancellationToken cancellationToken)
+	{
+		var assignment = await _unitOfWork.Repository<Assignment>()
+			.FindAsync(x => x.Id == assignmentId && x.SubjectId== subjectId, null, cancellationToken);
+
+		if (assignment == null)
+			return Result.Failure(AssignmentErrors.AssignmentNotFound);
+
+		var assignmentIsExist=await _unitOfWork.Repository<Assignment>()
+			.AnyAsync(x => x.Title.Trim() == request.Title.Trim()&& x.Id != assignmentId , cancellationToken);
+
+		if (assignmentIsExist)
+			return Result.Failure(AssignmentErrors.DuplicatedAssignment);
+
+		assignment.Title = request.Title.Trim();
+		assignment.SubjectId = subjectId;
+		_unitOfWork.Repository<Assignment>().Update(assignment);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+
+		return Result.Success();
+	}
+
 }
