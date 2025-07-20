@@ -54,7 +54,7 @@ public class AssignmentService(IUnitOfWork unitOfWork, IHttpContextAccessor http
 
 		var assignment = await _unitOfWork.Repository<Assignment>()
 			.GetAsQueryable()
-			.Where(x => x.Id == assignmentId)
+			.Where(x => x.Id == assignmentId && x.IsActive)
 			.Include(x => x.Subject)
 			.Include(x => x.FileAttachments)
 			.FirstOrDefaultAsync(cancellationToken);
@@ -102,4 +102,40 @@ public class AssignmentService(IUnitOfWork unitOfWork, IHttpContextAccessor http
 		return Result.Success(files);
 	}
 
+
+	public async Task<Result>UpdateAsync(Guid assignmentId, int subjectId, AssignmentUpdateRequest request, CancellationToken cancellationToken)
+	{
+		var assignment = await _unitOfWork.Repository<Assignment>()
+			.FindAsync(x => x.Id == assignmentId && x.SubjectId== subjectId, null, cancellationToken);
+
+		if (assignment == null)
+			return Result.Failure(AssignmentErrors.AssignmentNotFound);
+
+		var assignmentIsExist=await _unitOfWork.Repository<Assignment>()
+			.AnyAsync(x => x.Title.Trim() == request.Title.Trim()&& x.Id != assignmentId , cancellationToken);
+
+		if (assignmentIsExist)
+			return Result.Failure(AssignmentErrors.DuplicatedAssignment);
+
+		assignment.Title = request.Title.Trim();
+		assignment.SubjectId = subjectId;
+		_unitOfWork.Repository<Assignment>().Update(assignment);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+
+		return Result.Success();
+	}
+
+	public async Task<Result> ToggleStatusAsync(Guid assignmentId, CancellationToken cancellationToken = default)
+	{
+		var assignment = await _unitOfWork.Repository<Assignment>().FindAsync(x=>x.Id==assignmentId,null, cancellationToken);
+
+		if (assignment is null)
+			return Result.Failure(AssignmentErrors.AssignmentNotFound);
+
+		assignment.IsActive = !assignment.IsActive;
+
+		_unitOfWork.Repository<Assignment>().Update(assignment);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		return Result.Success();
+	}
 }

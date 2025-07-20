@@ -5,6 +5,7 @@ using SchoolProject.Application.Contracts.Department;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Infrastructure.Implementation.Services;
+using SchoolProject.Domain.Entites;
 
 
 namespace SchoolProject.Api.Controllers;
@@ -32,5 +33,20 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 	{
 		var result = await _assignmentService.GetAssignmentSubmissionsAsync(assignmentId, cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+	[HttpPut("subject/{subjectId}/assignment/{assignmentId}")]
+	public async Task<IActionResult> Update([FromRoute] Guid assignmentId, [FromRoute]int  subjectId, [FromBody] AssignmentUpdateRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _assignmentService.UpdateAsync(assignmentId, subjectId, request, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
+
+
+	[HttpPut("{assignmentId}/toggleStatus")]
+	public async Task<IActionResult> ToggleStatus([FromRoute] Guid assignmentId, CancellationToken cancellationToken)
+	{
+		var result = await _assignmentService.ToggleStatusAsync(assignmentId, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
 }
