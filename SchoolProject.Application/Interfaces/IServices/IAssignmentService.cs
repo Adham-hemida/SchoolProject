@@ -10,4 +10,5 @@ namespace SchoolProject.Application.Interfaces.IServices;
 public interface IAssignmentService
 {
 	Task<Result<AssignmentIdResponse>> AddAsync(Guid teacherId, AssignmentRequest request, CancellationToken cancellationToken);
+	Task<Result<AssignmentResponse>> GetByIdAsync(Guid assignmentId, CancellationToken cancellationToken);
 }

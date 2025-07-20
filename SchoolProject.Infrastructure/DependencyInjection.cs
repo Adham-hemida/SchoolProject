@@ -31,7 +31,7 @@ public static class DependencyInjection
 		services.AddScoped<IAssignmentService, AssignmentService>();
 		services.AddScoped<IFileAttachmentService, FileAttachmentService>();
 
-
+		services.AddHttpContextAccessor();
 		return services;
 	}
 }

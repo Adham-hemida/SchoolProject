@@ -23,6 +23,19 @@ public class FileAttachmentsController(IFileAttachmentService fileAttachmentServ
 	public async Task<IActionResult> UploadStudentSubmission([FromRoute] Guid assignmentId, [FromRoute] Guid studentId, [FromForm] UploadFileRequest request, CancellationToken cancellationToken)
 	{
 		var result = await _fileAttachmentService.UploadStudentSubmissionAsync(assignmentId,studentId,request, cancellationToken);
-		return result.IsSuccess ? Created() : result.ToProblem(); ;
+		return result.IsSuccess ? Created() : result.ToProblem();
+	}
+
+	[HttpGet("assignment/{assignmentId}/subject/{subjectId}/download/{fileId}")]
+	public async Task<IActionResult> DownLoadAssignmentFile([FromRoute] Guid fileId, [FromRoute] Guid assignmentId, [FromRoute] int subjectId, CancellationToken cancellationToken)
+	{
+		var result = await _fileAttachmentService.DownloadAssignmentFileAsync(fileId, assignmentId,subjectId, cancellationToken);
+		return result.IsSuccess ? File(result.Value.fileContent ,result.Value.contentType,result.Value.fileName) :result.ToProblem() ;
+	}
+	[HttpGet("download/{fileId}")]
+	public async Task<IActionResult> DownloadSubmissionsFile([FromRoute] Guid fileId , CancellationToken cancellationToken)
+	{
+		var result = await _fileAttachmentService.DownloadSubmissionsFileAsync(fileId, cancellationToken);
+		return result.IsSuccess ? File(result.Value.fileContent ,result.Value.contentType,result.Value.fileName) :result.ToProblem() ;
 	}
 }
