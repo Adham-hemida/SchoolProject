@@ -11,5 +11,7 @@ public static class StudentSubmissionErrors
 {
 	public static readonly Error StudentAlreadySubmitted =
 	new("Student.Submitted", " Student already Submitted", StatusCodes.Status400BadRequest);
+	public static readonly Error SubmissionNotFound =
+	new("Submission.NotFound", " No Submission was found", StatusCodes.Status400BadRequest);
 
 }
