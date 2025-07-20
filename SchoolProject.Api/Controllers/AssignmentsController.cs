@@ -41,4 +41,12 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 		var result = await _assignmentService.UpdateAsync(assignmentId, subjectId, request, cancellationToken);
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
+
+
+	[HttpPut("{assignmentId}/toggleStatus")]
+	public async Task<IActionResult> ToggleStatus([FromRoute] Guid assignmentId, CancellationToken cancellationToken)
+	{
+		var result = await _assignmentService.ToggleStatusAsync(assignmentId, cancellationToken);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 }

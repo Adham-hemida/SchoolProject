@@ -13,4 +13,5 @@ public interface IAssignmentService
 	Task<Result<AssignmentResponse>> GetByIdAsync(Guid assignmentId, CancellationToken cancellationToken);
 	Task<Result<List<AssignmentSubmissionResponse>>> GetAssignmentSubmissionsAsync(Guid assignmentId, CancellationToken cancellationToken);
 	Task<Result> UpdateAsync(Guid assignmentId, int subjectId, AssignmentUpdateRequest request, CancellationToken cancellationToken);
+	Task<Result> ToggleStatusAsync(Guid assignmentId, CancellationToken cancellationToken = default);
 }
