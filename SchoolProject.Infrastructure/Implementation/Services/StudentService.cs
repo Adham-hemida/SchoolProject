@@ -185,6 +185,7 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 		currentStudent.IsActive = !currentStudent.IsActive;
 
+		_unitOfWork.Repository<Student>().Update(currentStudent);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
 	}

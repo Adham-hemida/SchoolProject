@@ -78,6 +78,7 @@ public class DepartmentService(IUnitOfWork unitOfWork, ApplicationDbContext cont
 
 		departmet.IsActive = !departmet.IsActive;
 
+		_unitOfWork.Repository<Department>().Update(departmet);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
 	}

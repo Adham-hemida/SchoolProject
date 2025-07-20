@@ -97,6 +97,7 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 		subject.IsActive = !subject.IsActive;
 
+		_unitOfWork.Repository<Subject>().Update(subject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
 	}
