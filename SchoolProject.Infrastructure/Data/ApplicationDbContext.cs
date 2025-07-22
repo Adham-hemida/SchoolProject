@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SchoolProject.Domain.Entites;
 using System.Reflection;
 
 namespace SchoolProject.Infrastructure.Data;
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext>options):DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext>options): IdentityDbContext<ApplicationUser>(options)
 {
 	public DbSet<Teacher> Teachers { get; set; } = default!;
 	public DbSet<Subject> Subjects { get; set; } = default!;

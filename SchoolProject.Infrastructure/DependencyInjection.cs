@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolProject.Application.Interfaces.IGenericRepository;
@@ -19,6 +20,11 @@ public static class DependencyInjection
 
 		services.AddDbContext<ApplicationDbContext>(options =>
 			options.UseSqlServer(connectionString));
+
+		services
+			.AddIdentity<ApplicationUser, IdentityRole>()
+			.AddEntityFrameworkStores<ApplicationDbContext>()
+			.AddDefaultTokenProviders();
 
 		services.AddScoped( typeof(IGenericRepository<>), typeof(GenericRepository<>));
 		services.AddScoped<IUnitOfWork, UnitOfWork>();
