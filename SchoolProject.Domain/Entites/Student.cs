@@ -12,6 +12,9 @@ public class Student
 	public int? DepartmentId { get; set; }
 	public virtual Department Department { get; set; } = default!;
 
+	public string? UserId { get; set; }
+	public ApplicationUser? User { get; set; }
+
 	public ICollection<StudentSubject> StudentsSubjects { get; set; } = [];
 	public ICollection<StudentSubmission> Submissions { get; set; } = [];
 

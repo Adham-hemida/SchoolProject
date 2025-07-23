@@ -8,5 +8,8 @@ public class Teacher
 	public string? Phone { get; set; }
 	public bool IsActive { get; set; } = true;
 
+	public string? UserId { get; set; }
+	public ApplicationUser? User { get; set; }
+
 	public ICollection<Subject> Subjects { get; set; } =[];
 }
