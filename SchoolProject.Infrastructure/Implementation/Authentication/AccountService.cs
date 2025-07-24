@@ -1,7 +1,10 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.Authentication;
+using SchoolProject.Application.Contracts.User;
+using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IAuthentication;
 using System;
 using System.Collections.Generic;
@@ -22,5 +25,17 @@ public class AccountService(UserManager<ApplicationUser> userManager) : IAccount
 		   .SingleAsync(cancellationToken);
 
 		return Result.Success(user);
+	}
+
+
+	public async Task<Result> ChangePasswordAsync(string userId, ChangePasswordRequest request)
+	{
+		var user = await _userManager.FindByIdAsync(userId);
+		var result = await _userManager.ChangePasswordAsync(user!, request.CurrentPassword, request.NewPassword);
+		if (result.Succeeded)
+			return Result.Success();
+
+		var error = result.Errors.First();
+		return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
 	}
 }

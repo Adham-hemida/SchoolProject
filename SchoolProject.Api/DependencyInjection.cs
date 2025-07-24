@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SchoolProject.Application.ExceptionHandler;
@@ -44,6 +45,13 @@ public static class DependencyInjection
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings?.Key!))
 				};
 			});
+
+		services.Configure<IdentityOptions>(options =>
+		{
+			options.Password.RequiredLength = 8;
+			options.User.RequireUniqueEmail = true;
+			options.SignIn.RequireConfirmedEmail = true;
+		});
 
 
 
