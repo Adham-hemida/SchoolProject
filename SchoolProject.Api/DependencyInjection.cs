@@ -1,17 +1,50 @@
 ﻿using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using SchoolProject.Application.ExceptionHandler;
+using SchoolProject.Application.Settings;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
+using System.Text;
 
 namespace SchoolProject.Api;
 
 public static class DependencyInjection
 {
 
-	public static IServiceCollection AddApiDependencies(this IServiceCollection services)
+	public static IServiceCollection AddApiDependencies(this IServiceCollection services, IConfiguration configuration)
 	{
-	
+
+		services.AddOptions<JwtOptions>()
+			 .Bind(configuration.GetSection(JwtOptions.sectionName))
+			 .ValidateDataAnnotations()
+			 .ValidateOnStart();
+		// to use it to get the name of attributes in JwtOptions class
+		var JwtSettings = configuration.GetSection(JwtOptions.sectionName).Get<JwtOptions>();
+
+		services.AddAuthentication(options =>
+		{
+			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+		})
+			.AddJwtBearer(o =>
+			{
+				o.SaveToken = true;
+				o.TokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuerSigningKey = true,
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidateLifetime = true,
+					ValidIssuer = JwtSettings?.Issuer,
+					ValidAudience = JwtSettings?.Audience,
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings?.Key!))
+				};
+			});
+
 
 
 		return services;
