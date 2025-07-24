@@ -41,6 +41,7 @@ public static class DependencyInjection
 		services.AddScoped<IAssignmentService, AssignmentService>();
 		services.AddScoped<IFileAttachmentService, FileAttachmentService>();
 		services.AddScoped<IAuthService, AuthService>();
+		services.AddScoped<IAccountService, AccountService>();
 
 		services.AddHttpContextAccessor();
 		return services;
