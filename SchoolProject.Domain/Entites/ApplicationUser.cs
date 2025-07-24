@@ -9,5 +9,5 @@ public sealed class ApplicationUser : IdentityUser
 
 	public Student? Student { get; set; }
 	public Teacher? Teacher { get; set; }
-	//public List<RefreshToken> RefreshTokens { get; set; } = [];
+	public List<RefreshToken> RefreshTokens { get; set; } = [];
 }
