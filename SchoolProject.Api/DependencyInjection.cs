@@ -18,6 +18,13 @@ public static class DependencyInjection
 	public static IServiceCollection AddApiDependencies(this IServiceCollection services, IConfiguration configuration)
 	{
 
+		services.AddOptions<MailSettings>()
+	       .BindConfiguration(nameof(MailSettings))
+	       .ValidateDataAnnotations()
+	       .ValidateOnStart();
+
+
+
 		services.AddOptions<JwtOptions>()
 			 .Bind(configuration.GetSection(JwtOptions.sectionName))
 			 .ValidateDataAnnotations()

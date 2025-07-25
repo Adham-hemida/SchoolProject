@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +43,7 @@ public static class DependencyInjection
 		services.AddScoped<IFileAttachmentService, FileAttachmentService>();
 		services.AddScoped<IAuthService, AuthService>();
 		services.AddScoped<IAccountService, AccountService>();
+		services.AddScoped<IEmailSender, EmailService>();
 
 		services.AddHttpContextAccessor();
 		return services;
