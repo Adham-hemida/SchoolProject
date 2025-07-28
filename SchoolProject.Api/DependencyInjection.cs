@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using Hangfire;
+using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +18,8 @@ public static class DependencyInjection
 
 	public static IServiceCollection AddApiDependencies(this IServiceCollection services, IConfiguration configuration)
 	{
+
+		services.AddBackgroundJobsConfig(configuration);
 
 		services.AddOptions<MailSettings>()
 	       .BindConfiguration(nameof(MailSettings))
@@ -64,4 +67,19 @@ public static class DependencyInjection
 
 		return services;
 	}
+
+	private static IServiceCollection AddBackgroundJobsConfig(this IServiceCollection services, IConfiguration configuration)
+	{
+		services.AddHangfire(config => config
+		   .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+		   .UseSimpleAssemblyNameTypeSerializer()
+		   .UseRecommendedSerializerSettings()
+		   .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnect")));
+
+		services.AddHangfireServer();
+
+
+		return services;
+	}
+
 }
