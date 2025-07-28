@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SchoolProject.Application.ErrorHandler;
-public static class UserErrors
+public record UserErrors
 {
 	public static readonly Error InvalidCredentials =
 		new("invalid.credentials", "Invalid Email/Password", StatusCodes.Status401Unauthorized);
@@ -29,5 +29,8 @@ public static class UserErrors
 
 	public static readonly Error UserNotFound =
       new("User.UserNotFound", "User is not found", StatusCodes.Status404NotFound);
+
+	public static readonly Error InvalidCode =
+      new("User.InvalidCode", "Invalid code", StatusCodes.Status401Unauthorized);
 
 }
