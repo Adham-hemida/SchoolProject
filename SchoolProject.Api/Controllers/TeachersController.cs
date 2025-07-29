@@ -5,10 +5,12 @@ using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Infrastructure.Implementation.Services;
 using SchoolProject.Application.Contracts.Department;
 using SchoolProject.Application.Contracts.Teacher;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class TeachersController(ITeacherService teacherService) : ControllerBase
 {
 	private readonly ITeacherService _teacherService = teacherService;

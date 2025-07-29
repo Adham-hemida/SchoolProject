@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.Department;
@@ -9,6 +10,7 @@ using SchoolProject.Infrastructure.Implementation.Services;
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class SubjectsController(ISubjectService subjectService) : ControllerBase
 {
 	private readonly ISubjectService _subjectService = subjectService;

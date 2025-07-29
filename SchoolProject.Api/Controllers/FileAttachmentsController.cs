@@ -5,10 +5,12 @@ using SchoolProject.Application.Contracts.Assignment;
 using SchoolProject.Application.Contracts.FileAttachment;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Domain.Entites;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class FileAttachmentsController(IFileAttachmentService fileAttachmentService) : ControllerBase
 {
 	private readonly IFileAttachmentService _fileAttachmentService = fileAttachmentService;

@@ -5,10 +5,12 @@ using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Infrastructure.Implementation.Services;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.Contracts.Department;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class DepartmentsController(IDepartmentService departmentService) : ControllerBase
 {
 	private readonly IDepartmentService _departmentService = departmentService;

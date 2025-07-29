@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.Interfaces.IServices;
 namespace SchoolProject.Api.Controllers;
 [Route("api/Department/{DepartmentId}[controller]")]
 [ApiController]
+[Authorize]
 public class StudentsController(IStudentService studentService) : ControllerBase
 {
 	private readonly IStudentService _studentService = studentService;
