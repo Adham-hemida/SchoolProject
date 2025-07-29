@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using SchoolProject.Application.Abstractions.Consts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,5 +20,21 @@ public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
 	    .WithOwner()
 	    .HasForeignKey("UserId");
 
+
+
+		builder.HasData(new ApplicationUser
+		{
+			Id = DefaultUsers.Admin.Id,
+			FirstName = "School System",
+			LastName = "Admin",
+			UserName = DefaultUsers.Admin.Email,
+			NormalizedUserName = DefaultUsers.Admin.Email.ToUpper(),
+			Email = DefaultUsers.Admin.Email,
+			NormalizedEmail = DefaultUsers.Admin.Email.ToUpper(),
+			SecurityStamp = DefaultUsers.Admin.SecurityStamp,
+			ConcurrencyStamp = DefaultUsers.Admin.ConcurrencyStamp,
+			EmailConfirmed = true,
+			PasswordHash = DefaultUsers.Admin.PasswordHash
+		});
 	}
 }

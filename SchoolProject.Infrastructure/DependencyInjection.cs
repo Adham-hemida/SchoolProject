@@ -25,7 +25,7 @@ public static class DependencyInjection
 			options.UseSqlServer(connectionString));
 
 		services
-			.AddIdentity<ApplicationUser, IdentityRole>()
+			.AddIdentity<ApplicationUser, ApplicationRole>()
 			.AddEntityFrameworkStores<ApplicationDbContext>()
 			.AddDefaultTokenProviders();
 

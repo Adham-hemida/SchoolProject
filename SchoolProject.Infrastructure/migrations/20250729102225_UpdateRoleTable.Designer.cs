@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchoolProject.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SchoolProject.Infrastructure.Data;
 namespace SchoolProject.Infrastructure.migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250729102225_UpdateRoleTable")]
+    partial class UpdateRoleTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,13 +110,6 @@ namespace SchoolProject.Infrastructure.migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "019855ea-fef6-7aea-a2ee-4e83500e2169",
-                            RoleId = "019855ea-fef8-708d-ab80-da9e81d2325c"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -166,26 +162,6 @@ namespace SchoolProject.Infrastructure.migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "019855ea-fef8-708d-ab80-da9e81d2325c",
-                            ConcurrencyStamp = "019855ea-fef8-708d-ab80-da9f845c911f",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "019855ea-fef8-708d-ab80-daa013145d98",
-                            ConcurrencyStamp = "019855ea-fef8-708d-ab80-daa156960d15",
-                            IsDefault = true,
-                            IsDeleted = false,
-                            Name = "Member",
-                            NormalizedName = "MEMBER"
-                        });
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.ApplicationUser", b =>
@@ -264,27 +240,6 @@ namespace SchoolProject.Infrastructure.migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "019855ea-fef6-7aea-a2ee-4e83500e2169",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "019855ea-fef8-708d-ab80-da9da4ab679d",
-                            Email = "Admin@School_System.com",
-                            EmailConfirmed = true,
-                            FirstName = "School System",
-                            IsDisabled = false,
-                            LastName = "Admin",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@SCHOOL_SYSTEM.COM",
-                            NormalizedUserName = "ADMIN@SCHOOL_SYSTEM.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEA1BaaCL1VGAUJ790IV54viXXybSzkIIQvPPHk+pmTl2JYBiq/iD8UPMntaZL4Xvpw==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "0D4D736497244D628D7C32045E26BA51",
-                            TwoFactorEnabled = false,
-                            UserName = "Admin@School_System.com"
-                        });
                 });
 
             modelBuilder.Entity("SchoolProject.Domain.Entites.Assignment", b =>
