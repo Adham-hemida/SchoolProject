@@ -6,11 +6,13 @@ using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Infrastructure.Implementation.Services;
 using SchoolProject.Domain.Entites;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class AssignmentsController(IAssignmentService assignmentService) : ControllerBase
 {
 	private readonly IAssignmentService _assignmentService = assignmentService;

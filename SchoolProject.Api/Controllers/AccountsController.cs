@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.User;
@@ -8,6 +9,7 @@ using SchoolProject.Application.Interfaces.IAuthentication;
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class AccountsController(IAccountService accountService) : ControllerBase
 {
 	private readonly IAccountService _accountService = accountService;

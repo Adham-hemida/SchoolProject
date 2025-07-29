@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Interfaces.IServices;
@@ -6,6 +7,7 @@ using SchoolProject.Application.Interfaces.IServices;
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class DepartmentSubjectsController(IDepartmentSubjectService departmentSubjectService) : ControllerBase
 {
 	private readonly IDepartmentSubjectService _departmentSubjectService = departmentSubjectService;

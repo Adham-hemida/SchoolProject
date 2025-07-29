@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SchoolProject.Api.OpenApiTransformers;
 using SchoolProject.Application.ExceptionHandler;
 using SchoolProject.Application.Settings;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
@@ -26,7 +27,10 @@ public static class DependencyInjection
 	       .ValidateDataAnnotations()
 	       .ValidateOnStart();
 
-
+		services.AddOpenApi(options =>
+		{
+			options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+		});
 
 		services.AddOptions<JwtOptions>()
 			 .Bind(configuration.GetSection(JwtOptions.sectionName))
