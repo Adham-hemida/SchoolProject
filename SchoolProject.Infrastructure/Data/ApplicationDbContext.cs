@@ -4,7 +4,7 @@ using SchoolProject.Domain.Entites;
 using System.Reflection;
 
 namespace SchoolProject.Infrastructure.Data;
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext>options): IdentityDbContext<ApplicationUser>(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext>options): IdentityDbContext<ApplicationUser, ApplicationRole, string>(options)
 {
 	public DbSet<Teacher> Teachers { get; set; } = default!;
 	public DbSet<Subject> Subjects { get; set; } = default!;
