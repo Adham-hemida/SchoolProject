@@ -42,6 +42,12 @@ public class RolesController(IRoleService roleService) : ControllerBase
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
 
+	[HttpPut("{id}/toggle-status")]
+	public async Task<IActionResult> ToggleStatus([FromRoute] string id)
+	{
+		var result = await _roleService.ToggleSatausAsync(id);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
 
 
 }

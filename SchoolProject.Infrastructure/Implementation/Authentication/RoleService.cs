@@ -76,4 +76,17 @@ public class RoleService(RoleManager<ApplicationRole> roleManager) : IRoleServic
 
 		return Result.Success();
 	}
+
+	public async Task<Result>ToggleSatausAsync(string id)
+	{
+		var role = await _roleManager.FindByIdAsync(id);
+
+		if (role is null)
+			return Result.Failure(RolesError.RoleNotFound);
+
+		role.IsDeleted = !role.IsDeleted;
+		await _roleManager.UpdateAsync(role);
+		return Result.Success();
+	}
+
 }
