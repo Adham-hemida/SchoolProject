@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Interfaces.IAuthentication;
 using SchoolProject.Infrastructure.Implementation.Authentication;
 using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Contracts.Role;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
@@ -26,5 +27,27 @@ public class RolesController(IRoleService roleService) : ControllerBase
 		var result = await _roleService.GetAsync(id);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
+
+	[HttpPost("")]
+	public async Task<IActionResult> Add([FromBody] RoleRequest request)
+	{
+		var result = await _roleService.AddAsync(request);
+		return result.IsSuccess ? CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value) : result.ToProblem();
+	}
+
+	[HttpPut("{id}")]
+	public async Task<IActionResult> Update([FromRoute] string id, [FromBody] RoleRequest request)
+	{
+		var result = await _roleService.UpdateAsync(id, request);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
+
+	[HttpPut("{id}/toggle-status")]
+	public async Task<IActionResult> ToggleStatus([FromRoute] string id)
+	{
+		var result = await _roleService.ToggleSatausAsync(id);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
+
 
 }

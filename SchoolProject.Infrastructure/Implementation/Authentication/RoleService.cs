@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using SchoolProject.Application.Abstractions;
-using SchoolProject.Application.Contracts.Authentication;
+using SchoolProject.Application.Contracts.Role;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IAuthentication;
 
 namespace SchoolProject.Infrastructure.Implementation.Authentication;
-public class RoleService(RoleManager<ApplicationRole> roleManager) :IRoleService
+public class RoleService(RoleManager<ApplicationRole> roleManager) : IRoleService
 {
 	private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
 
@@ -30,4 +31,62 @@ public class RoleService(RoleManager<ApplicationRole> roleManager) :IRoleService
 
 		return Result.Success(response);
 	}
+
+	public async Task<Result<RoleResponse>> AddAsync(RoleRequest request)
+	{
+		var roleIsExists = await _roleManager.RoleExistsAsync(request.Name);
+
+		if (roleIsExists)
+			return Result.Failure<RoleResponse>(RolesError.RoleDuplicated);
+
+		var role = new ApplicationRole
+		{
+			Name = request.Name,
+			ConcurrencyStamp = Guid.CreateVersion7().ToString()
+		};
+
+		var result = await _roleManager.CreateAsync(role);
+
+		if(!result.Succeeded)
+		{
+			var errors = result.Errors.First();
+			return Result.Failure<RoleResponse>(new Error(errors.Code, errors.Description, StatusCodes.Status400BadRequest));
+		}
+
+		return Result.Success(new RoleResponse(role.Id, role.Name!, role.IsDeleted));
+
+	}
+
+	public async Task<Result> UpdateAsync(string id, RoleRequest request)
+	{
+		var roleIsExists = await _roleManager.Roles.AnyAsync(x => x.Name == request.Name && x.Id != id);
+		if (roleIsExists)
+			return Result.Failure(RolesError.RoleDuplicated);
+
+		if (await _roleManager.FindByIdAsync(id) is not { } role)
+			return Result.Failure(RolesError.RoleNotFound);
+
+		role.Name = request.Name;
+		var result = await _roleManager.UpdateAsync(role);
+		if (!result.Succeeded)
+		{
+			var errors = result.Errors.First();
+			return Result.Failure(new Error(errors.Code, errors.Description, StatusCodes.Status400BadRequest));
+		}
+
+		return Result.Success();
+	}
+
+	public async Task<Result>ToggleSatausAsync(string id)
+	{
+		var role = await _roleManager.FindByIdAsync(id);
+
+		if (role is null)
+			return Result.Failure(RolesError.RoleNotFound);
+
+		role.IsDeleted = !role.IsDeleted;
+		await _roleManager.UpdateAsync(role);
+		return Result.Success();
+	}
+
 }
