@@ -56,4 +56,24 @@ public class RoleService(RoleManager<ApplicationRole> roleManager) : IRoleServic
 		return Result.Success(new RoleResponse(role.Id, role.Name!, role.IsDeleted));
 
 	}
+
+	public async Task<Result> UpdateAsync(string id, RoleRequest request)
+	{
+		var roleIsExists = await _roleManager.Roles.AnyAsync(x => x.Name == request.Name && x.Id != id);
+		if (roleIsExists)
+			return Result.Failure(RolesError.RoleDuplicated);
+
+		if (await _roleManager.FindByIdAsync(id) is not { } role)
+			return Result.Failure(RolesError.RoleNotFound);
+
+		role.Name = request.Name;
+		var result = await _roleManager.UpdateAsync(role);
+		if (!result.Succeeded)
+		{
+			var errors = result.Errors.First();
+			return Result.Failure(new Error(errors.Code, errors.Description, StatusCodes.Status400BadRequest));
+		}
+
+		return Result.Success();
+	}
 }
