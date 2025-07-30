@@ -1,0 +1,10 @@
+﻿using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Contracts.Authentication;
+
+namespace SchoolProject.Application.Interfaces.IAuthentication;
+public interface IRoleService
+{
+	Task<IEnumerable<RoleResponse>> GetAllAsync(bool includeDisabled = false, CancellationToken cancellationToken = default);
+	Task<Result<RoleResponse>> GetAsync(string id);
+
+}
