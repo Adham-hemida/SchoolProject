@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.Authentication;
+using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IAuthentication;
 
 namespace SchoolProject.Infrastructure.Implementation.Authentication;
@@ -16,5 +18,16 @@ public class RoleService(RoleManager<ApplicationRole> roleManager) :IRoleService
 			x.Name!,
 			x.IsDeleted))
 			.ToListAsync(cancellationToken);
+	}
+
+	public async Task<Result<RoleResponse>> GetAsync(string id)
+	{
+		if (await _roleManager.FindByIdAsync(id) is not { } role)
+			return Result.Failure<RoleResponse>(RolesError.RoleNotFound);
+
+
+		var response = new RoleResponse(role.Id, role.Name!, role.IsDeleted);
+
+		return Result.Success(response);
 	}
 }
