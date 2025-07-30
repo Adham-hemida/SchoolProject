@@ -42,7 +42,8 @@ IEmailSender emailSender
 		var result = await _signInManager.PasswordSignInAsync(user, loginRequest.Password, isPersistent: false, lockoutOnFailure: false);
 		if (result.Succeeded)
 		{
-			var (token, expiresIn) = _jwtProvider.GenerateJwtToken(user);
+			var userRoles = await _userManager.GetRolesAsync(user);
+			var (token, expiresIn) = _jwtProvider.GenerateJwtToken(user, userRoles);
 
 			var refreshToken = GenerateRefreshToken();
 			var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpirationDays);
@@ -88,7 +89,9 @@ IEmailSender emailSender
 
 		userRefreshToken.RevokedOn=DateTime.UtcNow;
 
-		var (newToken, expiresIn) = _jwtProvider.GenerateJwtToken(user);
+		var userRoles = await _userManager.GetRolesAsync(user);
+
+		var (newToken, expiresIn) = _jwtProvider.GenerateJwtToken(user, userRoles);
 
 		var newRefreshToken = GenerateRefreshToken();
 		var newRefreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpirationDays);

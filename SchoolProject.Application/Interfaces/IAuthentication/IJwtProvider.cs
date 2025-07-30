@@ -8,6 +8,6 @@ using System.Threading.Tasks;
 namespace SchoolProject.Application.Interfaces.IAuthentication;
 public interface IJwtProvider
 {
-	(string token, int expiresIn) GenerateJwtToken(ApplicationUser user);
+	(string token, int expiresIn) GenerateJwtToken(ApplicationUser user, IEnumerable<string> roles);
 	string? ValidateToken(string token);
 }
