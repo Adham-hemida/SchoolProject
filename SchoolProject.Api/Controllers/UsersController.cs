@@ -18,4 +18,11 @@ public class UsersController(IUserService userService) : ControllerBase
 		var result = await _userService.CreateStudentUserAsync( request, cancellationToken);
 		return result.IsSuccess ?Ok( result.Value ) : result.ToProblem();
 	}
+	
+	[HttpPost("student/{studentId}/assign-user")]
+	public async Task<IActionResult> AssignUserToStudent([FromRoute] Guid studentId, [FromBody] CreateUserRequest request,  CancellationToken cancellationToken)
+	{
+		var result = await _userService.AssignUserToStudentAsync( request, studentId, cancellationToken);
+		return result.IsSuccess ?Ok( result.Value ) : result.ToProblem();
+	}
 }
