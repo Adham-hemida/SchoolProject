@@ -33,4 +33,7 @@ public record UserErrors
 	public static readonly Error InvalidCode =
       new("User.InvalidCode", "Invalid code", StatusCodes.Status401Unauthorized);
 
+	public static readonly Error DuplicatedEmail =
+	  new("User.DuplicatedEmail", "Another user with the same email is already exists", StatusCodes.Status409Conflict);
+ 
 }

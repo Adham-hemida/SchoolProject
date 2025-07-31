@@ -51,15 +51,21 @@ public class FileAttachmentService(IWebHostEnvironment webHostEnvironment,IUnitO
 		return Result.Success(uploadedFile.Id);
 	}
 
-	public async Task<Result> UploadStudentSubmissionAsync(Guid assignmentId, Guid studentId, UploadFileRequest file, CancellationToken cancellationToken)
+	public async Task<Result> UploadStudentSubmissionAsync(Guid assignmentId, string userId, UploadFileRequest file, CancellationToken cancellationToken)
 	{
 		var assignment = await _unitOfWork.Repository<Assignment>().FindAsync(x => x.Id == assignmentId, null, cancellationToken);
 		
 		if (assignment is null)
 			return Result.Failure(AssignmentErrors.AssignmentNotFound);
-		
+
+		var student = await _unitOfWork.Repository<Student>()
+			.FindAsync(x => x.UserId == userId, null, cancellationToken);
+
+		if (student is null)
+			return Result.Failure(StudentErrors.StudentNotFound);
+
 		var alreadySubmitte = await _unitOfWork.Repository<StudentSubmission>()
-			.AnyAsync(x => x.AssignmentId == assignmentId && x.StudentId == studentId, cancellationToken);
+			.AnyAsync(x => x.AssignmentId == assignmentId && x.StudentId == student.Id, cancellationToken);
 
 		if (alreadySubmitte)
 			return Result.Failure(StudentSubmissionErrors.StudentAlreadySubmitted);
@@ -86,7 +92,7 @@ public class FileAttachmentService(IWebHostEnvironment webHostEnvironment,IUnitO
 		var studentSubmission = new StudentSubmission
 		{
 			AssignmentId = assignmentId,
-			StudentId = studentId,
+			StudentId = student.Id,
 			FileAttachmentId = uploadedFile.Id,
 			SubmittedAt = DateTime.UtcNow
 		};
