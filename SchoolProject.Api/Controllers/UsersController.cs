@@ -44,7 +44,7 @@ public class UsersController(IUserService userService) : ControllerBase
 	public async Task<IActionResult> create([FromBody] CreateUserWithRolesRequest request, CancellationToken cancellationToken)
 	{
 		var result = await _userService.CreateAsync(request, cancellationToken);
-		return result.IsSuccess ? Ok( result.Value)	: result.ToProblem();
+		return result.IsSuccess ? CreatedAtAction(nameof(Get), new { id = result.Value.Id }, result.Value) : result.ToProblem();
 	}
 
 	[HttpPut("{userId}")]
@@ -52,6 +52,14 @@ public class UsersController(IUserService userService) : ControllerBase
 	{
 		var result = await _userService.UpdateAsync(userId, request, cancellationToken);
 		return result.IsSuccess ? NoContent()
+			: result.ToProblem();
+	}
+
+	[HttpGet("{userId}")]
+	public async Task<IActionResult> Get([FromRoute] string userId)
+	{
+		var result = await _userService.GetAsync(userId);
+		return result.IsSuccess ? Ok(result.Value)
 			: result.ToProblem();
 	}
 }
