@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Abstractions.Consts;
 using SchoolProject.Application.Contracts.Student;
@@ -183,6 +184,70 @@ public class UserService(UserManager<ApplicationUser> userManager,
 		{
 			var error = result.Errors.First();
 			return Result.Failure<TeacherUserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+		}
+	}
+
+	public async Task<Result<UserResponse>>CreateAsync(CreateUserWithRolesRequest request, CancellationToken cancellationToken = default)
+	{
+		var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
+		if (emailIsExist)
+			return Result.Failure<UserResponse>(UserErrors.DuplicatedEmail);
+
+		var allowRoles = await _roleService.GetAllAsync(cancellationToken: cancellationToken);
+
+		if (request.Roles.Except(allowRoles.Select(x => x.Name)).Any())
+			return Result.Failure<UserResponse>(UserErrors.InvalidRoles);
+
+		var user = request.Adapt<ApplicationUser>();
+		user.UserName = request.Email;
+		user.EmailConfirmed = true; 
+
+		var result = await _userManager.CreateAsync(user, request.Password);
+		if (result.Succeeded)
+		{
+			await _userManager.AddToRolesAsync(user, request.Roles);
+			var response = (user, request.Roles).Adapt<UserResponse>();
+			return Result.Success(response);
+		}
+		else
+		{
+			var error = result.Errors.First();
+			return Result.Failure<UserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+		}
+	}
+
+	public async Task<Result> UpdateAsync(string userId, UpdateUserRequest request, CancellationToken cancellationToken = default)
+	{
+		var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email && x.Id != userId, cancellationToken);
+		if (emailIsExist)
+			return Result.Failure(UserErrors.DuplicatedEmail);
+
+		var allowRoles = await _roleService.GetAllAsync(cancellationToken: cancellationToken);
+
+		if (request.Roles.Except(allowRoles.Select(x => x.Name)).Any())
+			return Result.Failure(UserErrors.InvalidRoles);
+
+		if (await _userManager.FindByIdAsync(userId) is not { } user)
+			return Result.Failure(UserErrors.UserNotFound);
+
+		user = request.Adapt(user);
+		var result = await _userManager.UpdateAsync(user);
+		if (result.Succeeded)
+		{
+			var userRoles = await _unitOfWork.Repository<IdentityUserRole<string>>()
+		      .GetAsQueryable()
+		      .Where(x => x.UserId == userId)
+		      .ToListAsync(cancellationToken);
+
+			_unitOfWork.Repository<IdentityUserRole<string>>().DeleteRange(userRoles);
+
+			await _userManager.AddToRolesAsync(user, request.Roles);
+			return Result.Success();
+		}
+		else
+		{
+			var error = result.Errors.First();
+			return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
 		}
 	}
 }
