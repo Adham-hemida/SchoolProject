@@ -5,4 +5,5 @@ namespace SchoolProject.Application.Interfaces.IAuthentication;
 public interface IUserService
 {
 	Task<Result<StudentUserResponse>> CreateStudentUserAsync(CreateStudentRequest request, CancellationToken cancellationToken = default);
+	Task<Result<StudentUserResponse>> AssignUserToStudentAsync(CreateUserRequest request, Guid studentId, CancellationToken cancellationToken = default);
 }

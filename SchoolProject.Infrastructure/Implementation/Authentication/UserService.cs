@@ -48,8 +48,6 @@ public class UserService(UserManager<ApplicationUser> userManager,
 
 
 		var user = request.Adapt<ApplicationUser>();
-		user.UserName = request.Email;
-		user.EmailConfirmed = true; 
 
 		var result = await _userManager.CreateAsync(user, request.Password);
 		if (!result.Succeeded)
@@ -77,6 +75,43 @@ public class UserService(UserManager<ApplicationUser> userManager,
 		var response = new StudentUserResponse(user.Id, user.FirstName, user.LastName, user.Email, user.IsDisabled, DefaultRoles.Student.Name);
 		return Result.Success(response);
 
+	}
+
+	public async Task<Result<StudentUserResponse>> AssignUserToStudentAsync(CreateUserRequest request,Guid studentId, CancellationToken cancellationToken = default)
+	{
+		var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
+		if (emailIsExist)
+			return Result.Failure<StudentUserResponse>(UserErrors.DuplicatedEmail);
+
+		var student = await _unitOfWork.Repository<Student>()
+				.GetAsQueryable()
+				.SingleOrDefaultAsync(x => x.Id == studentId, cancellationToken);
+
+		if (student is null)
+				return Result.Failure<StudentUserResponse>(StudentErrors.StudentNotFound);
+
+		if (!string.IsNullOrWhiteSpace(student.UserId))
+				return Result.Failure<StudentUserResponse>(StudentErrors.AlreadyHasUser);
+
+		var user = request.Adapt<ApplicationUser>();
+
+		var result = await _userManager.CreateAsync(user, request.Password);
+		if (result.Succeeded)
+		{
+			await _userManager.AddToRoleAsync(user, DefaultRoles.Student.Name);
+
+			student.UserId = user.Id;
+			_unitOfWork.Repository<Student>().Update(student);
+			await _unitOfWork.CompleteAsync(cancellationToken);
+
+			var response = new StudentUserResponse(user.Id, user.FirstName, user.LastName, user.Email!, user.IsDisabled, DefaultRoles.Student.Name);
+			return Result.Success(response);
+		}
+		else
+		{
+			var error = result.Errors.First();
+			return Result.Failure<StudentUserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+		}
 	}
 
 }
