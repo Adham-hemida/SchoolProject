@@ -40,4 +40,10 @@ public class UsersController(IUserService userService) : ControllerBase
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
+	[HttpPost("")]
+	public async Task<IActionResult> create([FromBody] CreateUserWithRolesRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _userService.CreateAsync(request, cancellationToken);
+		return result.IsSuccess ? Ok( result.Value)	: result.ToProblem();
+	}
 }
