@@ -32,4 +32,12 @@ public class UsersController(IUserService userService) : ControllerBase
 		var result = await _userService.CreateTeacherWithUserAsync(request, cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
+
+	[HttpPost("teacher/{teacherId}/assign-user")]
+	public async Task<IActionResult> AssignUserToTeacher([FromRoute] Guid teacherId, [FromBody] CreateUserRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _userService.AssignUserToTeacherAsync(request, teacherId, cancellationToken);
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
 }

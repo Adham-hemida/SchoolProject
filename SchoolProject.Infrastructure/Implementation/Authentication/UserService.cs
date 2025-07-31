@@ -122,7 +122,7 @@ public class UserService(UserManager<ApplicationUser> userManager,
 		if (emailIsExist)
 			return Result.Failure<TeacherUserResponse>(UserErrors.DuplicatedEmail);
 
-		var teacherIsExists = await _unitOfWork.Repository<Teacher>().AnyAsync(x => x.Email == request.Email && x.Phone==request.Phone,cancellationToken);
+		var teacherIsExists = await _unitOfWork.Repository<Teacher>().AnyAsync(x => x.Email == request.Email && x.Phone == request.Phone, cancellationToken);
 
 		if (teacherIsExists)
 			return Result.Failure<TeacherUserResponse>(TeacherErrors.DuplicatedTeacher);
@@ -148,5 +148,41 @@ public class UserService(UserManager<ApplicationUser> userManager,
 		var response = new TeacherUserResponse(user.Id, user.FirstName, user.LastName, user.Email!, teacher.Phone, user.IsDisabled, DefaultRoles.Teacher.Name);
 		return Result.Success(response);
 
+	}
+
+
+	public async Task<Result<TeacherUserResponse>> AssignUserToTeacherAsync(CreateUserRequest request, Guid teacherId, CancellationToken cancellationToken = default)
+	{
+		var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
+		
+		if (emailIsExist)
+			return Result.Failure<TeacherUserResponse>(UserErrors.DuplicatedEmail);
+		
+		var teacher = await _unitOfWork.Repository<Teacher>()
+				.GetAsQueryable()
+				.SingleOrDefaultAsync(x => x.Id == teacherId, cancellationToken);
+	
+		if (teacher is null)
+			return Result.Failure<TeacherUserResponse>(TeacherErrors.TeacherNotFound);
+		
+		if (!string.IsNullOrWhiteSpace(teacher.UserId))
+			return Result.Failure<TeacherUserResponse>(TeacherErrors.AlreadyHasUser);
+		
+		var user = request.Adapt<ApplicationUser>();
+		var result = await _userManager.CreateAsync(user, request.Password);
+		if (result.Succeeded)
+		{
+			await _userManager.AddToRoleAsync(user, DefaultRoles.Teacher.Name);
+			teacher.UserId = user.Id;
+		    _unitOfWork.Repository<Teacher>().Update(teacher);
+			await _unitOfWork.CompleteAsync(cancellationToken);
+			var response = new TeacherUserResponse(user.Id, user.FirstName, user.LastName, user.Email!, teacher.Phone, user.IsDisabled, DefaultRoles.Teacher.Name);
+			return Result.Success(response);
+		}
+		else
+		{
+			var error = result.Errors.First();
+			return Result.Failure<TeacherUserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+		}
 	}
 }
