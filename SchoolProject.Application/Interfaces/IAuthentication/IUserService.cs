@@ -9,5 +9,5 @@ public interface IUserService
 	Task<Result<TeacherUserResponse>> CreateTeacherWithUserAsync(TeacherUserRequest request, CancellationToken cancellationToken = default);
 	Task<Result<TeacherUserResponse>> AssignUserToTeacherAsync(CreateUserRequest request, Guid teacherId, CancellationToken cancellationToken = default);
 	Task<Result<UserResponse>> CreateAsync(CreateUserWithRolesRequest request, CancellationToken cancellationToken = default);
-
+	Task<Result> UpdateAsync(string userId, UpdateUserRequest request, CancellationToken cancellationToken = default);
 }
