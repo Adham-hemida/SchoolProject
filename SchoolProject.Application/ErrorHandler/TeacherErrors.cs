@@ -15,4 +15,7 @@ public static class TeacherErrors
 	public static readonly Error DuplicatedTeacher =
 		new("Teacher.Duplicated", " Another Teacher is already exist", StatusCodes.Status409Conflict);
 
+	public static readonly Error AlreadyHasUser =
+	new("Teacher.Duplicated", "  Teacher is already Has User", StatusCodes.Status409Conflict);
+
 }

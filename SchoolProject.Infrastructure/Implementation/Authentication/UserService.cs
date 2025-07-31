@@ -12,36 +12,37 @@ using SchoolProject.Domain.Entites;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SchoolProject.Infrastructure.Implementation.Authentication;
 public class UserService(UserManager<ApplicationUser> userManager,
 	IRoleService roleService,
-	IUnitOfWork unitOfWork)  :IUserService
+	IUnitOfWork unitOfWork) : IUserService
 {
 	private readonly UserManager<ApplicationUser> _userManager = userManager;
 	private readonly IRoleService _roleService = roleService;
 	private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-	public async Task<Result<StudentUserResponse>> CreateStudentUserAsync(CreateStudentRequest request, CancellationToken cancellationToken = default)
+	public async Task<Result<StudentUserResponse>> CreateStudentWithUserAsync(CreateStudentRequest request, CancellationToken cancellationToken = default)
 	{
 		var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
 		if (emailIsExist)
 			return Result.Failure<StudentUserResponse>(UserErrors.DuplicatedEmail);
 
 		var departmentExists = await _unitOfWork.Repository<Department>()
-	      .AnyAsync(d => d.Id == request.DepartmentId, cancellationToken);
+		  .AnyAsync(d => d.Id == request.DepartmentId, cancellationToken);
 
 		if (!departmentExists)
 			return Result.Failure<StudentUserResponse>(DepartmentErrors.DepartmentNotFound);
 
 		var studentIsExists = await _unitOfWork.Repository<Student>().AnyAsync(x =>
-           x.FirstName.Trim().ToLower() == request.FirstName.Trim().ToLower()
-           && x.LastName.Trim().ToLower() == request.LastName.Trim().ToLower()
-           && x.Phone == request.Phone
-           && x.DepartmentId == request.DepartmentId,
-           cancellationToken);
+		   x.FirstName.Trim().ToLower() == request.FirstName.Trim().ToLower()
+		   && x.LastName.Trim().ToLower() == request.LastName.Trim().ToLower()
+		   && x.Phone == request.Phone
+		   && x.DepartmentId == request.DepartmentId,
+		   cancellationToken);
 
 		if (studentIsExists)
 			return Result.Failure<StudentUserResponse>(StudentErrors.DuplicatedStudent);
@@ -77,7 +78,7 @@ public class UserService(UserManager<ApplicationUser> userManager,
 
 	}
 
-	public async Task<Result<StudentUserResponse>> AssignUserToStudentAsync(CreateUserRequest request,Guid studentId, CancellationToken cancellationToken = default)
+	public async Task<Result<StudentUserResponse>> AssignUserToStudentAsync(CreateUserRequest request, Guid studentId, CancellationToken cancellationToken = default)
 	{
 		var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
 		if (emailIsExist)
@@ -88,10 +89,10 @@ public class UserService(UserManager<ApplicationUser> userManager,
 				.SingleOrDefaultAsync(x => x.Id == studentId, cancellationToken);
 
 		if (student is null)
-				return Result.Failure<StudentUserResponse>(StudentErrors.StudentNotFound);
+			return Result.Failure<StudentUserResponse>(StudentErrors.StudentNotFound);
 
 		if (!string.IsNullOrWhiteSpace(student.UserId))
-				return Result.Failure<StudentUserResponse>(StudentErrors.AlreadyHasUser);
+			return Result.Failure<StudentUserResponse>(StudentErrors.AlreadyHasUser);
 
 		var user = request.Adapt<ApplicationUser>();
 
@@ -114,5 +115,74 @@ public class UserService(UserManager<ApplicationUser> userManager,
 		}
 	}
 
-}
+	public async Task<Result<TeacherUserResponse>> CreateTeacherWithUserAsync(TeacherUserRequest request, CancellationToken cancellationToken = default)
+	{
+		var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
 
+		if (emailIsExist)
+			return Result.Failure<TeacherUserResponse>(UserErrors.DuplicatedEmail);
+
+		var teacherIsExists = await _unitOfWork.Repository<Teacher>().AnyAsync(x => x.Email == request.Email && x.Phone == request.Phone, cancellationToken);
+
+		if (teacherIsExists)
+			return Result.Failure<TeacherUserResponse>(TeacherErrors.DuplicatedTeacher);
+
+		var user = request.Adapt<ApplicationUser>();
+		var result = await _userManager.CreateAsync(user, request.Password);
+		if (!result.Succeeded)
+		{
+			var error = result.Errors.First();
+			return Result.Failure<TeacherUserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+		}
+		await _userManager.AddToRoleAsync(user, DefaultRoles.Teacher.Name);
+		var teacher = new Teacher
+		{
+			FirstName = request.FirstName,
+			LastName = request.LastName,
+			Phone = request.Phone,
+			Email = request.Email,
+			UserId = user.Id
+		};
+		await _unitOfWork.Repository<Teacher>().CreateAsync(teacher, cancellationToken);
+		await _unitOfWork.CompleteAsync(cancellationToken);
+		var response = new TeacherUserResponse(user.Id, user.FirstName, user.LastName, user.Email!, teacher.Phone, user.IsDisabled, DefaultRoles.Teacher.Name);
+		return Result.Success(response);
+
+	}
+
+
+	public async Task<Result<TeacherUserResponse>> AssignUserToTeacherAsync(CreateUserRequest request, Guid teacherId, CancellationToken cancellationToken = default)
+	{
+		var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
+		
+		if (emailIsExist)
+			return Result.Failure<TeacherUserResponse>(UserErrors.DuplicatedEmail);
+		
+		var teacher = await _unitOfWork.Repository<Teacher>()
+				.GetAsQueryable()
+				.SingleOrDefaultAsync(x => x.Id == teacherId, cancellationToken);
+	
+		if (teacher is null)
+			return Result.Failure<TeacherUserResponse>(TeacherErrors.TeacherNotFound);
+		
+		if (!string.IsNullOrWhiteSpace(teacher.UserId))
+			return Result.Failure<TeacherUserResponse>(TeacherErrors.AlreadyHasUser);
+		
+		var user = request.Adapt<ApplicationUser>();
+		var result = await _userManager.CreateAsync(user, request.Password);
+		if (result.Succeeded)
+		{
+			await _userManager.AddToRoleAsync(user, DefaultRoles.Teacher.Name);
+			teacher.UserId = user.Id;
+		    _unitOfWork.Repository<Teacher>().Update(teacher);
+			await _unitOfWork.CompleteAsync(cancellationToken);
+			var response = new TeacherUserResponse(user.Id, user.FirstName, user.LastName, user.Email!, teacher.Phone, user.IsDisabled, DefaultRoles.Teacher.Name);
+			return Result.Success(response);
+		}
+		else
+		{
+			var error = result.Errors.First();
+			return Result.Failure<TeacherUserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+		}
+	}
+}

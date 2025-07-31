@@ -12,10 +12,10 @@ public class UsersController(IUserService userService) : ControllerBase
 {
 	private readonly IUserService _userService = userService;
 
-	[HttpPost("")]
-	public async Task<IActionResult> Create( [FromBody] CreateStudentRequest request, CancellationToken cancellationToken)
+	[HttpPost("student/create-with-user")]
+	public async Task<IActionResult> CreateStudentWithUser( [FromBody] CreateStudentRequest request, CancellationToken cancellationToken)
 	{
-		var result = await _userService.CreateStudentUserAsync( request, cancellationToken);
+		var result = await _userService.CreateStudentWithUserAsync( request, cancellationToken);
 		return result.IsSuccess ?Ok( result.Value ) : result.ToProblem();
 	}
 	
@@ -25,4 +25,19 @@ public class UsersController(IUserService userService) : ControllerBase
 		var result = await _userService.AssignUserToStudentAsync( request, studentId, cancellationToken);
 		return result.IsSuccess ?Ok( result.Value ) : result.ToProblem();
 	}
+
+	[HttpPost("teacher/create-with-user")]
+	public async Task<IActionResult> CreateTeacherWithUser([FromBody] TeacherUserRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _userService.CreateTeacherWithUserAsync(request, cancellationToken);
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+	[HttpPost("teacher/{teacherId}/assign-user")]
+	public async Task<IActionResult> AssignUserToTeacher([FromRoute] Guid teacherId, [FromBody] CreateUserRequest request, CancellationToken cancellationToken)
+	{
+		var result = await _userService.AssignUserToTeacherAsync(request, teacherId, cancellationToken);
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
 }

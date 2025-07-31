@@ -21,5 +21,9 @@ public class MappingConfig : IRegister
          .Map(dest => dest.UserName, src => src.Email)
          .Map(dest => dest.EmailConfirmed, src => true);
 
+	config.NewConfig<TeacherUserRequest, ApplicationUser>()
+         .Map(dest => dest.UserName, src => src.Email)
+         .Map(dest => dest.EmailConfirmed, src => true);
+
 	}
 }
