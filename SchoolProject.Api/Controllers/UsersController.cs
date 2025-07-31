@@ -62,4 +62,12 @@ public class UsersController(IUserService userService) : ControllerBase
 		return result.IsSuccess ? Ok(result.Value)
 			: result.ToProblem();
 	}
+
+	[HttpPut("{userId}/unlock")]
+	public async Task<IActionResult> Unlock([FromRoute] string userId)
+	{
+		var result = await _userService.UnlockAsync(userId);
+		return result.IsSuccess ? NoContent() : result.ToProblem();
+	}
+
 }
