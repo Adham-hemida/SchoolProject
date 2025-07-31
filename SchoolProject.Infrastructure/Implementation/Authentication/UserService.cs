@@ -234,12 +234,13 @@ public class UserService(UserManager<ApplicationUser> userManager,
 		var result = await _userManager.UpdateAsync(user);
 		if (result.Succeeded)
 		{
-			var userRoles = await _unitOfWork.Repository<IdentityUserRole<string>>()
-		      .GetAsQueryable()
-		      .Where(x => x.UserId == userId)
-		      .ToListAsync(cancellationToken);
-
-			_unitOfWork.Repository<IdentityUserRole<string>>().DeleteRange(userRoles);
+			var currentRoles = await _userManager.GetRolesAsync(user);
+			var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+			if (!removeRolesResult.Succeeded)
+			{
+				var error = removeRolesResult.Errors.First();
+				return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+			}
 
 			await _userManager.AddToRolesAsync(user, request.Roles);
 			return Result.Success();
@@ -250,4 +251,16 @@ public class UserService(UserManager<ApplicationUser> userManager,
 			return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
 		}
 	}
+
+	public async Task<Result<UserResponse>> GetAsync(string userId)
+	{
+		if (await _userManager.FindByIdAsync(userId) is not { } user)
+			return Result.Failure<UserResponse>(UserErrors.UserNotFound);
+
+		var userRoles = await _userManager.GetRolesAsync(user);
+		//	var response = new UserResponse(user.Id, user.FirstName, user.LastName, user.Email, user.IsDisabled, roles);
+		var response = (user, userRoles).Adapt<UserResponse>();
+		return Result.Success(response);
+	}
+
 }
