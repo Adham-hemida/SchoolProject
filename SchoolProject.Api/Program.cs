@@ -1,5 +1,7 @@
 using Hangfire;
 using HangfireBasicAuthenticationFilter;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 using SchoolProject.Api;
 using SchoolProject.Application;
@@ -49,5 +51,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.UseExceptionHandler();
+app.MapHealthChecks("health", new HealthCheckOptions
+{
+	ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.Run();
