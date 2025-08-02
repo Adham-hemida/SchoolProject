@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using SchoolProject.Api.OpenApiTransformers;
 using SchoolProject.Application.ExceptionHandler;
 using SchoolProject.Application.Settings;
+using SchoolProject.Infrastructure.Health;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
 using System.Text;
@@ -32,8 +33,10 @@ public static class DependencyInjection
 		services.AddBackgroundJobsConfig(configuration);
 
 		services.AddHealthChecks()
-	.AddSqlServer(name: "database", connectionString: configuration.GetConnectionString("DefaultConnection")!)
-	.AddHangfire(options => { options.MinimumAvailableServers = 1; });
+	      .AddSqlServer(name: "database", connectionString: configuration.GetConnectionString("DefaultConnection")!)
+	      .AddHangfire(options => { options.MinimumAvailableServers = 1; })
+	      .AddCheck<MailProviderHealthCheck>(name: "mail service");
+
 
 
 		services.AddOptions<MailSettings>()
