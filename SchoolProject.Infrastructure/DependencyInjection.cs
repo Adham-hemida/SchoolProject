@@ -24,6 +24,8 @@ public static class DependencyInjection
 		services.AddDbContext<ApplicationDbContext>(options =>
 			options.UseSqlServer(connectionString));
 
+		services.AddHybridCache();
+
 		services
 			.AddIdentity<ApplicationUser, ApplicationRole>()
 			.AddEntityFrameworkStores<ApplicationDbContext>()

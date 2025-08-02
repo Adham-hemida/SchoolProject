@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.Extensions.Caching.Hybrid;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.Subject;
 using SchoolProject.Application.ErrorHandler;
@@ -14,10 +15,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SchoolProject.Infrastructure.Implementation.Services;
-public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context) : ISubjectService
+public class SubjectService(IUnitOfWork unitOfWork, HybridCache hybridCache) : ISubjectService
 {
 	private readonly IUnitOfWork _unitOfWork = unitOfWork;
-	private readonly ApplicationDbContext _context = context;
+	private readonly HybridCache _hybridCache = hybridCache;
+	private const string _cachePrefix = "availbleSubjects";
 
 
 
@@ -33,11 +35,20 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 	public async Task<Result<IEnumerable<SubjectResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
 	{
-		var subjects = await _unitOfWork.Repository<Subject>().GetAsQueryable()
+		var cacheKey = $"{_cachePrefix}-GetAll";
+		var subjects = await _hybridCache.GetOrCreateAsync<IEnumerable<SubjectResponse>>(cacheKey,
+	async cacheEntry =>
+	{ return await _unitOfWork.Repository<Subject>().GetAsQueryable()
 			.Where(x => x.IsActive)
 			.Include(x => x.Teacher)
 			.ProjectToType<SubjectResponse>()
 			.ToListAsync(cancellationToken);
+	});
+		//var subjects = await _unitOfWork.Repository<Subject>().GetAsQueryable()
+		//	.Where(x => x.IsActive)
+		//	.Include(x => x.Teacher)
+		//	.ProjectToType<SubjectResponse>()
+		//	.ToListAsync(cancellationToken);
 
 		return Result.Success(subjects.AsEnumerable());
 	}
@@ -59,6 +70,8 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		var subject = request.Adapt<Subject>();
 		await _unitOfWork.Repository<Subject>().CreateAsync(subject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
+
+		await _hybridCache.RemoveAsync($"{_cachePrefix}-GetAll", cancellationToken);
 		return Result.Success(subject.Adapt<SubjectResponse>());
 	}
 
@@ -85,6 +98,8 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		subject = request.Adapt(subject);
 		_unitOfWork.Repository<Subject>().Update(subject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
+
+		await _hybridCache.RemoveAsync($"{_cachePrefix}-GetAll", cancellationToken);
 		return Result.Success();
 	}
 
@@ -93,12 +108,14 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		var subject = await _unitOfWork.Repository<Subject>().GetByIdAsync(id, cancellationToken);
 
 		if (subject is null)
-			return Result.Failure(StudentErrors.StudentNotFound);
+			return Result.Failure(SubjectErrors.SubjectNotFound);
 
 		subject.IsActive = !subject.IsActive;
 
 		_unitOfWork.Repository<Subject>().Update(subject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
+
+		await _hybridCache.RemoveAsync($"{_cachePrefix}-GetAll", cancellationToken);
 		return Result.Success();
 	}
 
@@ -219,7 +236,7 @@ public class SubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		};
 
 
-		_unitOfWork.Repository<DepartmentSubject>().Update(newDepartmentSubject);
+		await _unitOfWork.Repository<DepartmentSubject>().CreateAsync(newDepartmentSubject);
 		await _unitOfWork.CompleteAsync(cancellationToken);
 		return Result.Success();
 	}
