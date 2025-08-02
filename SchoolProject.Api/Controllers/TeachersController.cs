@@ -6,6 +6,7 @@ using SchoolProject.Infrastructure.Implementation.Services;
 using SchoolProject.Application.Contracts.Department;
 using SchoolProject.Application.Contracts.Teacher;
 using Microsoft.AspNetCore.Authorization;
+using SchoolProject.Application.Contracts.Common;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
@@ -22,9 +23,9 @@ public class TeachersController(ITeacherService teacherService) : ControllerBase
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 	[HttpGet("")]
-	public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
+	public async Task<IActionResult> GetAll([FromQuery] RequestFilters filters, CancellationToken cancellationToken = default)
 	{
-		var result = await _teacherService.GetAllAsync(cancellationToken);
+		var result = await _teacherService.GetAllAsync(filters,cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
