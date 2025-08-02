@@ -44,7 +44,7 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
 
 });
 
-
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();

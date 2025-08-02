@@ -19,6 +19,15 @@ public static class DependencyInjection
 
 	public static IServiceCollection AddApiDependencies(this IServiceCollection services, IConfiguration configuration)
 	{
+		var allowOrigins = configuration.GetSection("AllowOrigins").Get<string[]>();
+
+		services.AddCors(options =>
+		options.AddDefaultPolicy(bulider =>
+		{
+			bulider.AllowAnyMethod()
+			.AllowAnyHeader()
+			.WithOrigins(allowOrigins!);
+		}));
 
 		services.AddBackgroundJobsConfig(configuration);
 
