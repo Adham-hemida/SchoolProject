@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Contracts.Common;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.Interfaces.IServices;
 namespace SchoolProject.Api.Controllers;
@@ -19,9 +20,9 @@ public class StudentsController(IStudentService studentService) : ControllerBase
 	}
 
 	[HttpGet("")]
-	public async Task<IActionResult> GetAll([FromRoute] int DepartmentId, CancellationToken cancellationToken = default)
+	public async Task<IActionResult> GetAll([FromRoute] int DepartmentId, [FromQuery] RequestFilters filters, CancellationToken cancellationToken = default)
 	{
-		var result = await _studentService.GetAllAsync(DepartmentId,cancellationToken);
+		var result = await _studentService.GetAllAsync(DepartmentId, filters,cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 

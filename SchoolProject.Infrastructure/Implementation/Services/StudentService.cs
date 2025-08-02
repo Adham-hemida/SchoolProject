@@ -1,7 +1,9 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Contracts.Common;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IServices;
@@ -45,19 +47,27 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		return Result.Success(student);
 	}
 
-	public async Task<Result<IEnumerable<StudentBasicResponse>>> GetAllAsync(int DepartmentId, CancellationToken cancellationToken = default)
+	public async Task<Result<PaginatedList<StudentBasicResponse>>> GetAllAsync(int DepartmentId, RequestFilters filters, CancellationToken cancellationToken = default)
 	{
 		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
 
 		if (!departmentIsExist)
-			return Result.Failure<IEnumerable<StudentBasicResponse>>(DepartmentErrors.DepartmentNotFound);
+			return Result.Failure<PaginatedList<StudentBasicResponse>>(DepartmentErrors.DepartmentNotFound);
 
-		var Students = await _unitOfWork.Repository<Student>().FindAllProjectedAsync<StudentBasicResponse>(
-			x => x.DepartmentId == DepartmentId,
-			cancellationToken: cancellationToken
-		);
+		var query = _unitOfWork.Repository<Student>().GetAsQueryable()
+			.Where(x => x.DepartmentId == DepartmentId);
 
-		return Result.Success(Students);
+		var source = query.Select(x => new StudentBasicResponse
+		(
+			x.Id,
+			x.FirstName,
+			x.LastName,
+			x.Phone
+		)).AsNoTracking();
+
+		var students = await PaginatedList<StudentBasicResponse>.CreateAsync(source, filters.PageNumber, filters.PageSize, cancellationToken);
+
+		return Result.Success(students);
 	}
 
 	public async Task<Result<StudentBasicResponse>> AddAsync(int DepartmentId, StudentRequest request, CancellationToken cancellationToken = default)
