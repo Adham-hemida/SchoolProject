@@ -1,15 +1,13 @@
 ﻿using Mapster;
 using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Contracts.Common;
+using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.Contracts.Teacher;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Interfaces.IUnitOfWork;
-using SchoolProject.Domain.Entites;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
+
 
 namespace SchoolProject.Infrastructure.Implementation.Services;
 public class TeacherService(IUnitOfWork unitOfWork) : ITeacherService
@@ -36,22 +34,32 @@ public class TeacherService(IUnitOfWork unitOfWork) : ITeacherService
 		return Result.Success(teacher);
 	}
 
-	public async Task<Result<IEnumerable<TeacherResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
+	public async Task<Result<PaginatedList<TeacherResponse>>> GetAllAsync(RequestFilters filters,CancellationToken cancellationToken = default)
 	{
-		var teachers = await _unitOfWork.Repository<Teacher>().GetAsQueryable()
+		var query =  _unitOfWork.Repository<Teacher>().GetAsQueryable();
+
+		if (!string.IsNullOrEmpty(filters.SearchValue))
+		{ query = query.Where(x => x.FirstName.Contains(filters.SearchValue) || x.LastName.Contains(filters.SearchValue)); }
+
+		if (!string.IsNullOrEmpty(filters.SortColumn))
+		{ query = query.OrderBy($"{filters.SortColumn} {filters.SortDirection}"); }
+		
+
+		var source = query
 			.Select(x => new TeacherResponse(
-				x.Id,
+			 x.Id,
 				x.FirstName,
 				x.LastName,
 				x.Email,
 				x.Phone,
 				x.IsActive,
 				x.Subjects.Select(s => s.Name).Distinct()
-			)).ToListAsync(cancellationToken);
+			));
+
+		var teachers = await PaginatedList<TeacherResponse>.CreateAsync(source, filters.PageNumber, filters.PageSize, cancellationToken);
 
 
-
-		return Result.Success<IEnumerable<TeacherResponse>>(teachers);
+		return Result.Success(teachers);
 	}
 
 

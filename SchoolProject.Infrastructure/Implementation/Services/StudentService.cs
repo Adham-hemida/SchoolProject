@@ -1,15 +1,12 @@
 ﻿using Mapster;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Hybrid;
 using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Contracts.Common;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.ErrorHandler;
 using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Application.Interfaces.IUnitOfWork;
-using SchoolProject.Domain.Entites;
 using SchoolProject.Infrastructure.Data;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
+using System.Linq.Dynamic.Core;
 
 namespace SchoolProject.Infrastructure.Implementation.Services;
 public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context) : IStudentService
@@ -19,15 +16,15 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 
 
-	public async Task<Result<StudentResponse>> GetAsync(int DepartmentId, Guid Id, CancellationToken cancellationToken = default)
+	public async Task<Result<StudentResponse>> GetAsync(int departmentId, Guid Id, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure<StudentResponse>(DepartmentErrors.DepartmentNotFound);
 
 		var student = await _unitOfWork.Repository<Student>().GetAsQueryable()
-			.Where(x => x.Id == Id && x.DepartmentId == DepartmentId)
+			.Where(x => x.Id == Id && x.DepartmentId == departmentId)
 			.Include(x => x.StudentsSubjects)
 			.ThenInclude(x => x.Subject)
 			.Select(x => new StudentResponse
@@ -45,24 +42,40 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		return Result.Success(student);
 	}
 
-	public async Task<Result<IEnumerable<StudentBasicResponse>>> GetAllAsync(int DepartmentId, CancellationToken cancellationToken = default)
+	public async Task<Result<PaginatedList<StudentBasicResponse>>> GetAllAsync(int departmentId, RequestFilters filters, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
 
 		if (!departmentIsExist)
-			return Result.Failure<IEnumerable<StudentBasicResponse>>(DepartmentErrors.DepartmentNotFound);
+			return Result.Failure<PaginatedList<StudentBasicResponse>>(DepartmentErrors.DepartmentNotFound);
 
-		var Students = await _unitOfWork.Repository<Student>().FindAllProjectedAsync<StudentBasicResponse>(
-			x => x.DepartmentId == DepartmentId,
-			cancellationToken: cancellationToken
-		);
+		var query = _unitOfWork.Repository<Student>().GetAsQueryable()
+			.Where(x => x.DepartmentId == departmentId);
+		if (!string.IsNullOrEmpty(filters.SearchValue))
+		{
+			query = query.Where(x =>x.FirstName.Contains(filters.SearchValue) || x.LastName.Contains(filters.SearchValue));
+		}
+		if (!string.IsNullOrEmpty(filters.SortColumn))
+		{
+			query = query.OrderBy($"{filters.SortColumn} {filters.SortDirection}");
+		}
 
-		return Result.Success(Students);
+		var source = query.Select(x => new StudentBasicResponse
+		(
+			x.Id,
+			x.FirstName,
+			x.LastName,
+			x.Phone
+		)).AsNoTracking();
+
+		var students = await PaginatedList<StudentBasicResponse>.CreateAsync(source, filters.PageNumber, filters.PageSize, cancellationToken);
+
+		return Result.Success(students);
 	}
 
-	public async Task<Result<StudentBasicResponse>> AddAsync(int DepartmentId, StudentRequest request, CancellationToken cancellationToken = default)
+	public async Task<Result<StudentBasicResponse>> AddAsync(int departmentId, StudentRequest request, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure<StudentBasicResponse>(DepartmentErrors.DepartmentNotFound);
@@ -71,17 +84,17 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 		x.FirstName.Trim().ToLower() == request.FirstName.Trim().ToLower()
 		&& x.LastName.Trim().ToLower() == request.LastName.Trim().ToLower()
 		&& x.Phone == request.Phone
-		&& x.DepartmentId == DepartmentId,
+		&& x.DepartmentId == departmentId,
 		cancellationToken);
 
 		if (studentIsExists)
 			return Result.Failure<StudentBasicResponse>(StudentErrors.DuplicatedStudent);
 
 		var student = request.Adapt<Student>();
-		student.DepartmentId = DepartmentId;
+		student.DepartmentId = departmentId;
 
 		var departmentSubjectIds = await _unitOfWork.Repository<DepartmentSubject>().GetAsQueryable()
-			.Where(x => x.DepartmentId == DepartmentId&& x.Subject.IsActive)
+			.Where(x => x.DepartmentId == departmentId && x.Subject.IsActive)
 			.Select(x => x.SubjectId)
 			.ToListAsync(cancellationToken);
 
@@ -116,14 +129,14 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 	}
 
-	public async Task<Result> UpdateAsync(int DepartmentId, Guid id, UpdateStudentRequest request, CancellationToken cancellationToken = default)
+	public async Task<Result> UpdateAsync(int departmentId, Guid id, UpdateStudentRequest request, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure(DepartmentErrors.DepartmentNotFound);
 
-		var currentStudent = await _unitOfWork.Repository<Student>().FindAsync(x => x.Id == id && x.DepartmentId == DepartmentId, null, cancellationToken);
+		var currentStudent = await _unitOfWork.Repository<Student>().FindAsync(x => x.Id == id && x.DepartmentId == departmentId, null, cancellationToken);
 
 		if (currentStudent is null)
 			return Result.Failure(StudentErrors.StudentNotFound);
@@ -143,9 +156,9 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 
 
 
-	public async Task<Result> AssignStudentToDepartmentAsync(int DepartmentId, Guid id, CancellationToken cancellationToken = default)
+	public async Task<Result> AssignStudentToDepartmentAsync(int departmentId, Guid id, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure(DepartmentErrors.DepartmentNotFound);
@@ -155,12 +168,12 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 			return Result.Failure(StudentErrors.StudentNotFound);
 
 
-		var studentIsExistInDepartment = await _unitOfWork.Repository<Student>().AnyAsync(x => x.Id == id && x.DepartmentId == DepartmentId, cancellationToken);
+		var studentIsExistInDepartment = await _unitOfWork.Repository<Student>().AnyAsync(x => x.Id == id && x.DepartmentId == departmentId, cancellationToken);
 
 		if(studentIsExistInDepartment)
 			return Result.Failure(StudentErrors.DuplicatedStudent);
 
-		student.DepartmentId=DepartmentId;
+		student.DepartmentId= departmentId;
 
 		 _unitOfWork.Repository<Student>().Update(student);
 		await _unitOfWork.CompleteAsync(cancellationToken);
@@ -171,14 +184,14 @@ public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context
 	}
 
 
-	public async Task<Result> ToggleStatusAsync(int DepartmentId, Guid id, CancellationToken cancellationToken = default)
+	public async Task<Result> ToggleStatusAsync(int departmentId, Guid id, CancellationToken cancellationToken = default)
 	{
-		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == DepartmentId, cancellationToken);
+		var departmentIsExist = await _unitOfWork.Repository<Department>().AnyAsync(x => x.Id == departmentId, cancellationToken);
 
 		if (!departmentIsExist)
 			return Result.Failure(DepartmentErrors.DepartmentNotFound);
 
-		var currentStudent = await _unitOfWork.Repository<Student>().FindAsync(x => x.Id == id && x.DepartmentId == DepartmentId, null, cancellationToken);
+		var currentStudent = await _unitOfWork.Repository<Student>().FindAsync(x => x.Id == id && x.DepartmentId == departmentId, null, cancellationToken);
 
 		if (currentStudent is null)
 			return Result.Failure(StudentErrors.StudentNotFound);
