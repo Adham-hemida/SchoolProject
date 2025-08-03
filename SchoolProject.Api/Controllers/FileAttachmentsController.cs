@@ -7,6 +7,8 @@ using SchoolProject.Application.Interfaces.IServices;
 using SchoolProject.Domain.Entites;
 using Microsoft.AspNetCore.Authorization;
 using SchoolProject.Application.Extensions;
+using Microsoft.AspNetCore.RateLimiting;
+using SchoolProject.Application.Abstractions.Consts;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
@@ -21,7 +23,8 @@ public class FileAttachmentsController(IFileAttachmentService fileAttachmentServ
 		var result = await _fileAttachmentService.UploadAssignmentFileAsync(assignmentId,request, cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem(); ;
 	}
-	
+
+	[EnableRateLimiting(RateLimiters.Concurrency)]
 	[HttpPost("assignment/{assignmentId}/upload-assignment")]
 	public async Task<IActionResult> UploadStudentSubmission([FromRoute] Guid assignmentId, [FromForm] UploadFileRequest request, CancellationToken cancellationToken)
 	{
@@ -30,12 +33,14 @@ public class FileAttachmentsController(IFileAttachmentService fileAttachmentServ
 		return result.IsSuccess ? Created() : result.ToProblem();
 	}
 
+	[EnableRateLimiting(RateLimiters.Concurrency)]
 	[HttpGet("assignment/{assignmentId}/subject/{subjectId}/download/{fileId}")]
 	public async Task<IActionResult> DownLoadAssignmentFile([FromRoute] Guid fileId, [FromRoute] Guid assignmentId, [FromRoute] int subjectId, CancellationToken cancellationToken)
 	{
 		var result = await _fileAttachmentService.DownloadAssignmentFileAsync(fileId, assignmentId,subjectId, cancellationToken);
 		return result.IsSuccess ? File(result.Value.fileContent ,result.Value.contentType,result.Value.fileName) :result.ToProblem() ;
 	}
+
 	[HttpGet("download/{fileId}")]
 	public async Task<IActionResult> DownloadSubmissionsFile([FromRoute] Guid fileId , CancellationToken cancellationToken)
 	{
