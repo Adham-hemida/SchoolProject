@@ -3,15 +3,19 @@ using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SchoolProject.Api.OpenApiTransformers;
+using SchoolProject.Application.Abstractions.Consts;
 using SchoolProject.Application.ExceptionHandler;
+using SchoolProject.Application.Extensions;
 using SchoolProject.Application.Settings;
 using SchoolProject.Infrastructure.Health;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace SchoolProject.Api;
 
@@ -30,7 +34,8 @@ public static class DependencyInjection
 			.WithOrigins(allowOrigins!);
 		}));
 
-		services.AddBackgroundJobsConfig(configuration);
+		services.AddBackgroundJobsConfig(configuration)
+			.AddRatingLimitConfig();
 
 		services.AddHealthChecks()
 	      .AddSqlServer(name: "database", connectionString: configuration.GetConnectionString("DefaultConnection")!)
@@ -103,4 +108,43 @@ public static class DependencyInjection
 		return services;
 	}
 
-}
+	private static IServiceCollection AddRatingLimitConfig(this IServiceCollection services)
+	{
+		services.AddRateLimiter(rateLimitterOptions =>
+		{
+			rateLimitterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+			rateLimitterOptions.AddPolicy(RateLimiters.IpLimiter, httpContext =>
+			RateLimitPartition.GetFixedWindowLimiter(
+				partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+				factory: _ => new FixedWindowRateLimiterOptions
+				{
+					PermitLimit = 2,
+					Window = TimeSpan.FromSeconds(20)
+				}
+
+				));
+
+			rateLimitterOptions.AddPolicy(RateLimiters.UserLimiter, httpContext =>
+			RateLimitPartition.GetFixedWindowLimiter(
+				partitionKey: httpContext.User.GetUserId(),
+				factory: _ => new FixedWindowRateLimiterOptions
+				{
+					PermitLimit = 2,
+					Window = TimeSpan.FromSeconds(20)
+				}
+
+				));
+
+			rateLimitterOptions.AddConcurrencyLimiter(RateLimiters.Concurrency,
+				options =>
+				{
+					options.PermitLimit = 1000;
+					options.QueueLimit = 100;
+					options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+				});
+		});
+			return services;
+	}
+
+	}

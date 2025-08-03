@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Contracts.Authentication;
 using SchoolProject.Application.Interfaces.IAuthentication;
+using Microsoft.AspNetCore.RateLimiting;
+using SchoolProject.Application.Abstractions.Consts;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[EnableRateLimiting(RateLimiters.IpLimiter)]
 public class AuthsController(IAuthService authService) : ControllerBase
 {
 	private readonly IAuthService _authService = authService;
