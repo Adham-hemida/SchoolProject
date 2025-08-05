@@ -5,6 +5,7 @@ using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.Common;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.Features.Students.Commands.AddStudent;
+using SchoolProject.Application.Features.Students.Commands.UpdateStudent;
 using SchoolProject.Application.Features.Students.Queries.GetAllStudents;
 using SchoolProject.Application.Features.Students.Queries.GetStudentById;
 using SchoolProject.Application.Interfaces.IServices;
@@ -41,18 +42,19 @@ public class StudentsController(IStudentService studentService,IMediator mediato
 		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { DepartmentId, id = result.Value.Id, result.Value }, result.Value) : result.ToProblem();
 	}
 	
-	//[HttpPost("")]
-	//public async Task<IActionResult> Create([FromRoute] int DepartmentId, [FromBody] StudentRequest request, CancellationToken cancellationToken)
-	//{
-	//	var result = await _studentService.AddAsync(DepartmentId, request, cancellationToken);
-	//	return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { DepartmentId, id = result.Value.Id, result.Value }, result.Value) : result.ToProblem();
-	//}
+
 	[HttpPut("{id}")]
 	public async Task<IActionResult> Update([FromRoute] int DepartmentId, [FromRoute] Guid id, [FromBody] UpdateStudentRequest request, CancellationToken cancellationToken)
 	{
-		var result = await _studentService.UpdateAsync(DepartmentId,id,request, cancellationToken);
+		var result = await _mediator.Send(new UpdateStudentCommand(DepartmentId, id, request), cancellationToken);
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
+	//	[HttpPut("{id}")]
+	//public async Task<IActionResult> Update([FromRoute] int DepartmentId, [FromRoute] Guid id, [FromBody] UpdateStudentRequest request, CancellationToken cancellationToken)
+	//{
+	//	var result = await _studentService.UpdateAsync(DepartmentId,id,request, cancellationToken);
+	//	return result.IsSuccess ? NoContent() : result.ToProblem();
+	//}
 
 	[HttpPut("{id}/assign-to-department")]
 	public async Task<IActionResult> AssignStudentToDepartment([FromRoute] int DepartmentId, [FromRoute] Guid id, CancellationToken cancellationToken)
