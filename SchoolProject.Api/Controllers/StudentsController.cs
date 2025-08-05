@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Abstractions;
 using SchoolProject.Application.Contracts.Common;
 using SchoolProject.Application.Contracts.Student;
+using SchoolProject.Application.Features.Students.Queries.GetAllStudents;
 using SchoolProject.Application.Features.Students.Queries.GetStudentById;
 using SchoolProject.Application.Interfaces.IServices;
 namespace SchoolProject.Api.Controllers;
@@ -22,19 +23,20 @@ public class StudentsController(IStudentService studentService,IMediator mediato
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
-	//[HttpGet("{id}")]
-	//public async Task<IActionResult> GetById([FromRoute] int DepartmentId, [FromRoute] Guid id, CancellationToken cancellationToken = default)
-	//{
-	//	var result = await _studentService.GetAsync(DepartmentId, id, cancellationToken);
-	//	return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-	//}
 
 	[HttpGet("")]
 	public async Task<IActionResult> GetAll([FromRoute] int DepartmentId, [FromQuery] RequestFilters filters, CancellationToken cancellationToken = default)
 	{
-		var result = await _studentService.GetAllAsync(DepartmentId, filters,cancellationToken);
+		var result = await _mediator.Send(new GetAllStudentsQuery(DepartmentId, filters), cancellationToken);
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
+
+	//[HttpGet("")]
+	//public async Task<IActionResult> GetAll([FromRoute] int DepartmentId, [FromQuery] RequestFilters filters, CancellationToken cancellationToken = default)
+	//{
+	//	var result = await _studentService.GetAllAsync(DepartmentId, filters, cancellationToken);
+	//	return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	//}
 
 	[HttpPost("")]
 	public async Task<IActionResult> Create([FromRoute] int DepartmentId, [FromBody] StudentRequest request, CancellationToken cancellationToken)
