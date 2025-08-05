@@ -22,6 +22,8 @@ public static class DependencyInjection
 			.AddFluentValidationAutoValidation()
 			.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
+		services.AddMediatR(med => med.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
 
 		return services;
 	}
