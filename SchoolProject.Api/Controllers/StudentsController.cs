@@ -6,6 +6,7 @@ using SchoolProject.Application.Contracts.Common;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.Features.Students.Commands.AddStudent;
 using SchoolProject.Application.Features.Students.Commands.AssignToDepartment;
+using SchoolProject.Application.Features.Students.Commands.ToggleStatus;
 using SchoolProject.Application.Features.Students.Commands.UpdateStudent;
 using SchoolProject.Application.Features.Students.Queries.GetAllStudents;
 using SchoolProject.Application.Features.Students.Queries.GetStudentById;
@@ -59,18 +60,19 @@ public class StudentsController(IStudentService studentService,IMediator mediato
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
 	
-	//	[HttpPut("{id}/assign-to-department")]
-	//public async Task<IActionResult> AssignStudentToDepartment([FromRoute] int DepartmentId, [FromRoute] Guid id, CancellationToken cancellationToken)
-	//{
-	//	var result = await _studentService.AssignStudentToDepartmentAsync(DepartmentId, id, cancellationToken);
-	//	return result.IsSuccess ? NoContent() : result.ToProblem();
-	//}
+
 
 	[HttpPut("{id}/toggleStatus")]
 	public async Task<IActionResult> ToggleStatus([FromRoute] int DepartmentId, [FromRoute] Guid id, CancellationToken cancellationToken)
 	{
-		var result = await _studentService.ToggleStatusAsync(DepartmentId,id, cancellationToken);
+		var result = await _mediator.Send(new ToggleStudentStatusCommand(DepartmentId, id), cancellationToken);
 		return result.IsSuccess ? NoContent() : result.ToProblem();
-	}
+	}	
+	//[HttpPut("{id}/toggleStatus")]
+	//public async Task<IActionResult> ToggleStatus([FromRoute] int DepartmentId, [FromRoute] Guid id, CancellationToken cancellationToken)
+	//{
+	//	var result = await _studentService.ToggleStatusAsync(DepartmentId,id, cancellationToken);
+	//	return result.IsSuccess ? NoContent() : result.ToProblem();
+	//}
 
 }
