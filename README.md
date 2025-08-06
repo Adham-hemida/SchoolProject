@@ -156,14 +156,31 @@ A comprehensive school management system that provides:
 ✅ Separation of Concerns using SOLID principles
 ---
 
-## 🛠️ Features Implemented
+Key Features
+-🔒 User and Role Management: Leveraged JWT for secure authentication and authorization, allowing for seamless and secure access control.
 
-- ✅ Claims-Based Permissions (No Roles)
-- ✅ File Upload & Download (Assignment & Submissions)
-- ✅ JWT with Refresh Token
-- ✅ Email Confirmation & Password Reset
-- ✅ Pagination & Filtering
-- ✅ Unit of Work Pattern (Most Services)
-- ✅ Hangfire Dashboard (Optional)
-- ✅ Hybrid Caching 
+-🚨 Exception Handling: Integrated centralized exception handling to manage errors gracefully, significantly enhancing the user experience.
 
+-⚠️ Error Handling with Result Pattern: Employed a result pattern for structured error handling, providing clear and actionable feedback to users.
+
+-🚦CORS (Cross-Origin Resource Sharing): a security feature implemented by web browsers to prevent web pages from making requests to a different domain than the one that served the web page.
+
+-🔄 Mapster: Utilized for efficient object mapping between models, improving data handling and reducing boilerplate code.
+
+-✅ Fluent Validation: Ensured data integrity by effectively validating inputs, leading to user-friendly error messages.
+
+-🔑 Account Management: Implemented features for user account management, including change password and reset password functionalities.
+
+-🚦 Rate Limiting: Controlled the number of requests to prevent abuse, ensuring fair usage across all users.
+
+-🛠️ Background Jobs: Used Hangfire for managing background tasks like sending confirmation emails and processing password resets seamlessly.
+
+-🗃️ Hybrid Caching: Optimized performance with caching for frequently accessed data, significantly improving response times.
+
+-📧 Email Confirmation: Managed user email confirmations, password changes, and resets seamlessly to enhance security.
+
+-🔍 Health Checks: Incorporated health checks to monitor the system’s status and performance, ensuring reliability and uptime.
+
+-✅ Generic Repository for all module
+
+-✅ Applying CQRS with MediatR is applied in the **Student Module
