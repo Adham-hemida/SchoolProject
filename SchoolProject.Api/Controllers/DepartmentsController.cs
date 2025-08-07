@@ -6,6 +6,7 @@ using SchoolProject.Infrastructure.Implementation.Services;
 using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.Contracts.Department;
 using Microsoft.AspNetCore.Authorization;
+using SchoolProject.Application.Abstractions.Consts;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
@@ -15,6 +16,7 @@ public class DepartmentsController(IDepartmentService departmentService) : Contr
 {
 	private readonly IDepartmentService _departmentService = departmentService;
 
+	[Authorize(Roles = $"{DefaultRoles.Admin.Name},{DefaultRoles.Teacher.Name},{DefaultRoles.Student.Name}")]
 	[HttpGet("{id}")]
 	public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken = default)
 	{
@@ -22,6 +24,7 @@ public class DepartmentsController(IDepartmentService departmentService) : Contr
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
+	[Authorize(Roles = $"{DefaultRoles.Admin.Name},{DefaultRoles.Teacher.Name},{DefaultRoles.Student.Name}")]
 	[HttpGet("")]
 	public async Task<IActionResult> GetAll( CancellationToken cancellationToken = default)
 	{
@@ -29,6 +32,7 @@ public class DepartmentsController(IDepartmentService departmentService) : Contr
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
+	[Authorize(DefaultRoles.Admin.Name)]
 	[HttpPost("")]
 	public async Task<IActionResult> Create( [FromBody] DepartmentRequest request, CancellationToken cancellationToken)
 	{
@@ -36,6 +40,7 @@ public class DepartmentsController(IDepartmentService departmentService) : Contr
 		return result.IsSuccess ? CreatedAtAction(nameof(GetById), new {  id = result.Value.Id }, result.Value) : result.ToProblem();
 	}
 
+	[Authorize(DefaultRoles.Admin.Name)]
 	[HttpPut("{id}")]
 	public async Task<IActionResult> Update([FromRoute] int  id, [FromBody] DepartmentRequest request, CancellationToken cancellationToken)
 	{
@@ -43,6 +48,8 @@ public class DepartmentsController(IDepartmentService departmentService) : Contr
 		return result.IsSuccess ? NoContent() : result.ToProblem();
 	}
 
+
+	[Authorize(DefaultRoles.Admin.Name)]
 	[HttpPut("{id}/toggleStatus")]
 	public async Task<IActionResult> ToggleStatus([FromRoute] int  id, CancellationToken cancellationToken)
 	{

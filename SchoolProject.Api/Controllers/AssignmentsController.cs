@@ -7,12 +7,13 @@ using SchoolProject.Application.Abstractions;
 using SchoolProject.Infrastructure.Implementation.Services;
 using SchoolProject.Domain.Entites;
 using Microsoft.AspNetCore.Authorization;
+using SchoolProject.Application.Abstractions.Consts;
 
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+[Authorize(DefaultRoles.Teacher.Name)]
 public class AssignmentsController(IAssignmentService assignmentService) : ControllerBase
 {
 	private readonly IAssignmentService _assignmentService = assignmentService;
@@ -23,6 +24,8 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 		var result = await _assignmentService.AddAsync(teacherId, request, cancellationToken);
 		return result.IsSuccess ? Created() : result.ToProblem();
 	}
+
+	[Authorize(Roles = $"{DefaultRoles.Teacher.Name},{DefaultRoles.Student.Name}")]
 	[HttpGet("{assignmentId}")]
 	public async Task<IActionResult> GetById([FromRoute] Guid assignmentId, CancellationToken cancellationToken = default)
 	{

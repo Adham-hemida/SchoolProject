@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Application.Abstractions;
+using SchoolProject.Application.Abstractions.Consts;
 using SchoolProject.Application.Contracts.Department;
 using SchoolProject.Application.Contracts.Subject;
 using SchoolProject.Application.Interfaces.IServices;
@@ -10,11 +11,12 @@ using SchoolProject.Infrastructure.Implementation.Services;
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+[Authorize(DefaultRoles.Admin.Name)]
 public class SubjectsController(ISubjectService subjectService) : ControllerBase
 {
 	private readonly ISubjectService _subjectService = subjectService;
 
+	[Authorize(Roles = $"{DefaultRoles.Admin.Name},{DefaultRoles.Teacher.Name},{DefaultRoles.Student.Name}")]
 	[HttpGet("{id}")]
 	public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken = default)
 	{
@@ -22,6 +24,7 @@ public class SubjectsController(ISubjectService subjectService) : ControllerBase
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
+	[Authorize(Roles = $"{DefaultRoles.Admin.Name},{DefaultRoles.Teacher.Name},{DefaultRoles.Student.Name}")]
 	[HttpGet("")]
 	public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
 	{
