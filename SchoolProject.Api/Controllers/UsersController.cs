@@ -4,10 +4,13 @@ using SchoolProject.Application.Contracts.Student;
 using SchoolProject.Application.Contracts.User;
 using SchoolProject.Application.Interfaces.IAuthentication;
 using SchoolProject.Application.Abstractions;
+using Microsoft.AspNetCore.Authorization;
+using SchoolProject.Application.Abstractions.Consts;
 
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(DefaultRoles.Admin.Name)]
 public class UsersController(IUserService userService) : ControllerBase
 {
 	private readonly IUserService _userService = userService;

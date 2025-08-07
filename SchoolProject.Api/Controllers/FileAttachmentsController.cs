@@ -13,10 +13,12 @@ using SchoolProject.Application.Abstractions.Consts;
 namespace SchoolProject.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+[Authorize(DefaultRoles.Admin.Name)]
 public class FileAttachmentsController(IFileAttachmentService fileAttachmentService) : ControllerBase
 {
 	private readonly IFileAttachmentService _fileAttachmentService = fileAttachmentService;
+
+	[Authorize(DefaultRoles.Teacher.Name)]
 	[HttpPost("assignment/{assignmentId}/upload")]
 	public async Task<IActionResult> Upload([FromRoute] Guid assignmentId, [FromForm] UploadFileRequest request, CancellationToken cancellationToken)
 	{
@@ -24,6 +26,7 @@ public class FileAttachmentsController(IFileAttachmentService fileAttachmentServ
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem(); ;
 	}
 
+	[Authorize(DefaultRoles.Student.Name)]
 	[EnableRateLimiting(RateLimiters.Concurrency)]
 	[HttpPost("assignment/{assignmentId}/upload-assignment")]
 	public async Task<IActionResult> UploadStudentSubmission([FromRoute] Guid assignmentId, [FromForm] UploadFileRequest request, CancellationToken cancellationToken)
@@ -33,6 +36,7 @@ public class FileAttachmentsController(IFileAttachmentService fileAttachmentServ
 		return result.IsSuccess ? Created() : result.ToProblem();
 	}
 
+	[Authorize(DefaultRoles.Student.Name)]
 	[EnableRateLimiting(RateLimiters.Concurrency)]
 	[HttpGet("assignment/{assignmentId}/subject/{subjectId}/download/{fileId}")]
 	public async Task<IActionResult> DownLoadAssignmentFile([FromRoute] Guid fileId, [FromRoute] Guid assignmentId, [FromRoute] int subjectId, CancellationToken cancellationToken)
@@ -41,6 +45,8 @@ public class FileAttachmentsController(IFileAttachmentService fileAttachmentServ
 		return result.IsSuccess ? File(result.Value.fileContent ,result.Value.contentType,result.Value.fileName) :result.ToProblem() ;
 	}
 
+
+	[Authorize(DefaultRoles.Teacher.Name)]
 	[HttpGet("download/{fileId}")]
 	public async Task<IActionResult> DownloadSubmissionsFile([FromRoute] Guid fileId , CancellationToken cancellationToken)
 	{
