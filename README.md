@@ -148,6 +148,42 @@ A comprehensive school management system that provides:
 
 ---
 
+### 📘 Subjects (`/api/Subjects`)
+
+| Method | Endpoint                                                                 | Description                                     |
+|--------|--------------------------------------------------------------------------|-------------------------------------------------|
+| GET    | `/api/Subjects/{id}`                                                     | Get subject by ID                               |
+| GET    | `/api/Subjects`                                                          | List all subjects                               |
+| POST   | `/api/Subjects`                                                          | Create new subject                              |
+| PUT    | `/api/Subjects/{id}`                                                     | Update subject                                  |
+| PUT    | `/api/Subjects/{id}/toggleStatus`                                        | Toggle subject status                           |
+| POST   | `/api/Subjects/department/{departmentId}/subject/{id}/add-subject-to-department` | Add subject to department (with isMandatory)    |
+| PUT    | `/api/Subjects/department/{departmentId}/subject/{id}/toggleStatus-departmentSubject` | Toggle status of subject in department         |
+| POST   | `/api/Subjects/student/{studentId}/subject/{id}/add-subject-to-student`  | Assign subject to student                       |
+| PUT    | `/api/Subjects/department/{departmentID}/student/{studentId}/subject/{id}/toggleStatus-studentSubject` | Toggle subject status for student in department |
+
+---
+
+### 🧮 Student Grades (`/api/StudentSubjects`)
+
+| Method | Endpoint                                                                 | Description                            |
+|--------|--------------------------------------------------------------------------|----------------------------------------|
+| POST   | `/api/StudentSubjects/student/{studentId}/subject/{id}/add-grade-to-student` | Add grade for a student in a subject   |
+| GET    | `/api/StudentSubjects/{studentId}/get-grades-of-students`                | Get all subjects and grades for student|
+
+---
+### 🛡️ Roles Management (`/api/Roles`)
+
+| Method | Endpoint                                | Description                          |
+|--------|------------------------------------------|--------------------------------------|
+| GET    | `/api/Roles?includeDisabled={bool}`      | Get all roles (with optional filter) |
+| GET    | `/api/Roles/{id}`                        | Get role by ID                        |
+| POST   | `/api/Roles`                             | Create a new role                     |
+| PUT    | `/api/Roles/{id}`                        | Update role by ID                     |
+| PUT    | `/api/Roles/{id}/toggle-status`          | Toggle the status of a role          |
+
+---
+
 🏗️ Architecture
 ✅ clean archeticture
 ✅ ** CQRS with MediatR is applied in the **Student Module**.
