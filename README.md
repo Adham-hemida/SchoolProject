@@ -84,8 +84,8 @@ A comprehensive school management system that provides:
 | POST   | `/api/Department/{DepartmentId}/Students`                    | Add student           |
 | GET    | `/api/Department/{DepartmentId}/Students/{id}`               | Get student by ID     |
 | PUT    | `/api/Department/{DepartmentId}/Students/{id}`               | Update student        |
-| PUT    | `/api/Department/{DepartmentId}/Students/{id}/toggleStatus` | Assign to department |
-| PUT    | `/api/Department/{DepartmentId}/Students/{id}/assign-to-department` | Toggle student status |
+| PUT    | `/api/Department/{DepartmentId}/Students/{id}/toggleStatus` | Toggle student status |
+| PUT    | `/api/Department/{DepartmentId}/Students/{id}/assign-to-department` | Assign student to department |
 
 > **Note:** CQRS with MediatR is applied in the **Student Module**.
 
