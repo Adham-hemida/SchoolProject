@@ -9,10 +9,9 @@ using SchoolProject.Infrastructure.Data;
 using System.Linq.Dynamic.Core;
 
 namespace SchoolProject.Infrastructure.Implementation.Services;
-public class StudentService(IUnitOfWork unitOfWork, ApplicationDbContext context) : IStudentService
+public class StudentService(IUnitOfWork unitOfWork) : IStudentService
 {
 	private readonly IUnitOfWork _unitOfWork = unitOfWork;
-	private readonly ApplicationDbContext _context = context;
 
 
 

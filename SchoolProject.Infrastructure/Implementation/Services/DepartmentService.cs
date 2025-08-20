@@ -9,10 +9,9 @@ using SchoolProject.Domain.Entites;
 using SchoolProject.Infrastructure.Data;
 
 namespace SchoolProject.Infrastructure.Implementation.Services;
-public class DepartmentService(IUnitOfWork unitOfWork, ApplicationDbContext context) : IDepartmentService
+public class DepartmentService(IUnitOfWork unitOfWork) : IDepartmentService
 {
 	private readonly IUnitOfWork _unitOfWork = unitOfWork;
-	private readonly ApplicationDbContext _context = context;
 
 	public async Task<Result<IEnumerable<DepartmentResponse>>> GetAllAsync( CancellationToken cancellationToken = default)
 	{
