@@ -14,10 +14,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SchoolProject.Infrastructure.Implementation.Services;
-public class StudentSubjectService(IUnitOfWork unitOfWork, ApplicationDbContext context) : IStudentSubjectService
+public class StudentSubjectService(IUnitOfWork unitOfWork) : IStudentSubjectService
 {
 	private readonly IUnitOfWork _unitOfWork = unitOfWork;
-	private readonly ApplicationDbContext _context = context;
 
 	public async Task<Result<StudentSubjectResponse>> AddGradeToStudentAsync(int subjectId, Guid studentId, StudentSubjectRequest request, CancellationToken cancellationToken = default)
 	{
