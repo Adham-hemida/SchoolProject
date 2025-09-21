@@ -46,7 +46,7 @@ A comprehensive school management system that provides:
 | ------ | ---------------------------- | ----------------------- |
 | POST   | `/Auth`                      | Login                   |
 | POST   | `/Auth/refresh`              | Refresh JWT token       |
-| PUT    | `/Auth/revoke-refresh-token` | Revoke refresh token    |
+| POST   | `/Auth/revoke-refresh-token` | Revoke refresh token    |
 | POST   | `/Auth/forget-password`      | Start password reset    |
 | POST   | `/Auth/reset-password`       | Complete password reset |
 
